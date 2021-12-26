@@ -2,7 +2,7 @@ import Image from "next/image";
 
 function Footer() {
   return (
-    <div className="w-full bg-purple-900 pb-4">
+    <div className="w-full bg-purple-900 pb-4 h-72 pt-4">
       <div className="flex justify-center">
         <Image src="/svg/logo.svg" height={90} width={90} alt="GoodJobs" />
       </div>
