@@ -3,7 +3,7 @@ import Footer from "../../../components/layout/Footer";
 import Header from "../../../components/layout/Header";
 import SearchBar from "../../../components/SearchBar";
 import { validatePost } from "./create";
-import { doc, getDoc, addDoc, collection, getFirestore, updateDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

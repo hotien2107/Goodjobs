@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { format } from "date-fns";
+import vi from "date-fns/locale/vi";
 
 export default function Post({ post }) {
   return (
@@ -13,7 +15,7 @@ export default function Post({ post }) {
                 </div>
                 <div className="ml-10">
                   <div className="font-semibold text-xl">Nguyễn Ngọc A</div>
-                  <div className="text-gray-500 mt-2">{post.createTime}</div>
+                  <div className="text-gray-500 mt-2">{format(new Date(post.createTime), "dd MMMM yyyy", { locale: vi })}</div>
                 </div>
               </div>
               <Info name={"Mô tả công việc"} content={post.job_description} />
