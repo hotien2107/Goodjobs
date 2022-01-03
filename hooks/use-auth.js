@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from '@firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from '@firebase/auth';
 import { addDoc, collection, getDocs, onSnapshot, query, where } from '@firebase/firestore';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -110,6 +110,10 @@ export default function useFirebaseAuth() {
     }
   };
 
+  const forgotPassword = async (email) => {
+    return await sendPasswordResetEmail(auth, email);
+  };
+
   const logout = async () => {
     try {
       router.push('/login');
@@ -132,5 +136,6 @@ export default function useFirebaseAuth() {
     signUp: signUpWithEmailAndPassword,
     loginEmail: LoginWithEmailAndPassword,
     logout,
+    forgotPassword,
   };
 }

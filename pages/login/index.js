@@ -13,7 +13,7 @@ const Login = () => {
 
   const signInWithEmailAndPassword = () => {
     const loginSuccess = () => {
-      alert('Success')
+      alert('Đăng nhập thành công')
       router.push('/');
     };
     auth.loginEmail(loginSuccess, emailEntered, passwordEntered);
@@ -66,7 +66,7 @@ const Login = () => {
                 </label>
 
                 <div className='w-full text-right'>
-                  <a className='underline text-sm text-gray-600 hover:text-gray-900' href='#'>
+                  <a className='underline text-sm text-gray-600 hover:text-gray-900' href='/auth/change_password'>
                     Quên mật khẩu?
                   </a>
                 </div>
