@@ -1,11 +1,24 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
 import { auth } from "../../config/firebase";
 import useFirebaseAuth from "../../hooks/use-auth";
 
 const Login = () => {
+  const [emailEntered, setEmailEntered] = useState("");
+  const [passwordEntered, setPasswordEntered] = useState("");
+
   const router = useRouter();
-  const { auth } = useFirebaseAuth();
+  const auth = useFirebaseAuth();
+
+  const signInWithEmailAndPassword = () => {
+    const loginSuccess = () => {
+      alert("Đăng nhập thành công");
+      router.push("/");
+    };
+    auth.loginEmail(loginSuccess, emailEntered, passwordEntered);
+  };
 
   const signInWithGoogle = () => {
     auth.loginGoogle(() => router.push("/"));
@@ -25,7 +38,9 @@ const Login = () => {
               <input
                 type="email"
                 placeholder="Email"
-                className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                className="mt-1 block px-2 w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                value={emailEntered}
+                onChange={(e) => setEmailEntered(e.target.value)}
               />
             </div>
 
@@ -34,6 +49,8 @@ const Login = () => {
                 type="password"
                 placeholder="Mật khẩu"
                 className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                value={passwordEntered}
+                onChange={(e) => setPasswordEntered(e.target.value)}
               />
             </div>
 
@@ -49,15 +66,18 @@ const Login = () => {
               </label>
 
               <div className="w-full text-right">
-                <a className="underline text-sm text-gray-600 hover:text-gray-900" href="#">
+                <a className="underline text-sm text-gray-600 hover:text-gray-900" href="/auth/change_password">
                   Quên mật khẩu?
                 </a>
               </div>
             </div>
 
             <div className="mt-7">
-              <button className="bg-blue-500 w-full py-3 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105">
-                Login
+              <button
+                onClick={signInWithEmailAndPassword}
+                className="bg-blue-500 w-full py-3 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105"
+              >
+                Đăng nhập
               </button>
             </div>
 
@@ -83,9 +103,9 @@ const Login = () => {
             <div className="mt-7">
               <div className="flex justify-center items-center">
                 <label className="mr-2">Bạn là người mới?</label>
-                <a href="#" className=" text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105">
-                  Tạo một tài khoản
-                </a>
+                <Link href={"/auth/register"}>
+                  <div className="text-blue-700">Tạo một tài khoản</div>
+                </Link>
               </div>
             </div>
           </div>

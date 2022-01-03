@@ -1,6 +1,19 @@
-import React from 'react';
+import React, { useRef, useState } from "react";
+import { useRouter } from 'next/router';
+import { auth } from '../../config/firebase';
+import useFirebaseAuth from '../../hooks/use-auth';
 
 const change_password = () => {
+  const [emailEntered, setEmailEntered] = useState('');
+  const router = useRouter();
+  const auth = useFirebaseAuth();
+
+  const forgotPassword = () => {
+    alert('Kiểm tra email xác thực')
+    router.push('/login');
+    auth.forgotPassword(emailEntered);
+  };
+
   return (
     <div className='container mx-auto'>
       <div className='flex justify-center px-6 my-12'>
@@ -26,12 +39,14 @@ const change_password = () => {
                   id='email'
                   type='email'
                   placeholder='Nhập địa chỉ email...'
+                  value={emailEntered}
+                  onChange={(e) => setEmailEntered(e.target.value)}
                 />
               </div>
               <div className='mb-6 text-center'>
                 <button
                   className='w-full px-4 py-2 font-bold text-white bg-red-500 rounded-full hover:bg-red-700 focus:outline-none focus:shadow-outline'
-                  type='button'
+                  type='button' onClick={forgotPassword}
                 >
                   Đặt lại mật khẩu
                 </button>
