@@ -100,7 +100,7 @@ const Login = () => {
               <div className='mt-7'>
                 <div className='flex justify-center items-center'>
                   <label className='mr-2'>Bạn là người mới?</label>
-                  <a href='#' className=' text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105'>
+                  <a href='/auth/register' className=' text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105'>
                     Tạo một tài khoản
                   </a>
                 </div>

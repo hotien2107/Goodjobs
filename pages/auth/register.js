@@ -6,8 +6,7 @@ import useFirebaseAuth from '../../hooks/use-auth';
 const register = () => {
   const [emailEntered, setEmailEntered] = useState('');
   const [passwordEntered, setPasswordEntered] = useState('');
-  const [firstNameEntered, setFirstNameEntered] = useState('');
-  const [lastNameEntered, setLastNameEntered] = useState('');
+  const [fullnameEntered, setFullnameEntered] = useState('');
 
   const router = useRouter();
 
@@ -19,7 +18,7 @@ const register = () => {
       router.push('/login');
     };
 
-    signUp(signUpSuccess, emailEntered, passwordEntered, firstNameEntered + ' ' + lastNameEntered);
+    signUp(signUpSuccess, emailEntered, passwordEntered, fullnameEntered);
   };
 
   return (
@@ -177,34 +176,19 @@ const register = () => {
               <p>Enter your information to register</p>
             </div>
             <div>
-              <div className='flex -mx-3'>
-                <div className='w-1/2 px-3 mb-5'>
-                  <label className='px-1 text-xs font-semibold'>First name</label>
+            <div className='flex -mx-3'>
+                <div className='w-full px-3 mb-5'>
+                  <label className='px-1 text-xs font-semibold'>Fullname</label>
                   <div className='flex'>
                     <div className='z-10 flex items-center justify-center w-10 pl-1 text-center pointer-events-none'>
-                      <i className='text-lg text-gray-400 mdi mdi-account-outline'></i>
+                      <i className='text-lg text-gray-400 mdi mdi-email-outline'></i>
                     </div>
                     <input
-                      type='text'
+                      type='email'
                       className='w-full py-2 pl-10 pr-3 -ml-10 border-2 border-gray-200 rounded-lg outline-none focus:border-indigo-500'
-                      placeholder='John'
-                      value={firstNameEntered}
-                      onChange={(e) => setFirstNameEntered(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className='w-1/2 px-3 mb-5'>
-                  <label className='px-1 text-xs font-semibold'>Last name</label>
-                  <div className='flex'>
-                    <div className='z-10 flex items-center justify-center w-10 pl-1 text-center pointer-events-none'>
-                      <i className='text-lg text-gray-400 mdi mdi-account-outline'></i>
-                    </div>
-                    <input
-                      type='text'
-                      className='w-full py-2 pl-10 pr-3 -ml-10 border-2 border-gray-200 rounded-lg outline-none focus:border-indigo-500'
-                      placeholder='Smith'
-                      value={lastNameEntered}
-                      onChange={(e) => setLastNameEntered(e.target.value)}
+                      placeholder='Cristiano Ronaldo'
+                      value={fullnameEntered}
+                      onChange={(e) => setFullnameEntered(e.target.value)}
                     />
                   </div>
                 </div>
