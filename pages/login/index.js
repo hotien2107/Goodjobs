@@ -11,7 +11,7 @@ const Login = () => {
             <label forhtml='' className='block mt-3 text-sm text-gray-700 text-center font-semibold'>
               Login
             </label>
-            <form method='#' action='#' className='mt-10'>
+            <form method='POST' action='/' className='mt-10'>
               <div>
                 <input
                   type='email'
@@ -47,7 +47,7 @@ const Login = () => {
               </div>
 
               <div className='mt-7'>
-                <button className='bg-blue-500 w-full py-3 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105'>
+                <button className='bg-blue-500 w-full py-3 rounded-xl text-white shadow-xl hover:shadow-inner focus:outline-none transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105' type='submit'>
                   Login
                 </button>
               </div>
@@ -71,7 +71,7 @@ const Login = () => {
               <div className='mt-7'>
                 <div className='flex justify-center items-center'>
                   <label className='mr-2'>Bạn là người mới?</label>
-                  <a href='#' className=' text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105'>
+                  <a href='/auth/register' className=' text-blue-500 transition duration-500 ease-in-out  transform hover:-translate-x hover:scale-105'>
                     Tạo một tài khoản
                   </a>
                 </div>

@@ -42,7 +42,7 @@ function Header() {
               </svg>
             </div>
           </div>
-          <div className="flex items-center">
+          <a className="flex items-center" href='/login'>
             <div className="bg-gray-200 rounded-full p-3 text-purple-900">
               <svg width="1em" height="1em" viewBox="0 0 24 24">
                 <path
@@ -51,7 +51,7 @@ function Header() {
                 ></path>
               </svg>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </div>
