@@ -19,7 +19,7 @@ const register = () => {
       router.push('/login');
     };
 
-    signUp(signUpSuccess, emailEntered, passwordEntered, firstNameEntered + lastNameEntered);
+    signUp(signUpSuccess, emailEntered, passwordEntered, firstNameEntered + ' ' + lastNameEntered);
   };
 
   return (
