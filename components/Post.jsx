@@ -4,7 +4,7 @@ import vi from "date-fns/locale/vi";
 
 export default function Post({ post }) {
   return (
-    <div className="w-full min-h-[120px] shadow-[0_0_10px_5px_rgba(0,0,0,0.1)] rounded-lg pt-5 mb-6">
+    <div className="w-full min-h-[120px] shadow-[0_0_5px_2px_rgba(0,0,0,0.1)] rounded-lg pt-5 mb-6">
       <div className="flex justify-center">
         <div>
           <div className="w-full h-96 relative overflow-hidden">
@@ -42,7 +42,7 @@ export default function Post({ post }) {
   );
 }
 
-function Info({ name, content }) {
+export function Info({ name, content }) {
   return (
     <div className="mt-4">
       <div className="font-bold">{name}</div>
@@ -51,7 +51,7 @@ function Info({ name, content }) {
   );
 }
 
-function Control() {
+export function Control() {
   return (
     <div className="flex justify-around py-3 border-t-2 ">
       <div className="flex items-center text-2xl text-gray-600">

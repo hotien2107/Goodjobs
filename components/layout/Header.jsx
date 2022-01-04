@@ -12,7 +12,7 @@ function Header() {
   const { authUser, logout } = auth;
 
   return (
-    <div className='w-full flex justify-center content-center shadow-md'>
+    <div className='w-full flex justify-center content-center border-b-[0.5px] bg-white'>
       <div className='h-24 w-4/5 flex justify-between max-w-screen-xl'>
         <div className='h-full w-20 flex items-center'>
           <div className='h-4/5 w-full'>
