@@ -1,4 +1,4 @@
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
+import { collection, getDocs, getFirestore, limit, orderBy, query, where } from "firebase/firestore";
 import Head from "next/head";
 import Image from "next/image";
 import Footer from "../components/layout/Footer";
@@ -10,21 +10,38 @@ import CategoriesNews from "../components/homepage/categories_news";
 const db = getFirestore();
 
 export async function getServerSideProps(context) {
-  const q = query(collection(db, "posts"));
-  const dataSnapshot = await getDocs(q);
   let posts = [];
-  dataSnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
+  let highestPaid = []
+  let HCMCity = []
+  let Expired = []
 
+  let dataSnapshot = await getDocs(query(collection(db, "posts"), limit(10)));
+  dataSnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
   posts = posts.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
+
+  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("salary", "desc"), limit(5)))
+  dataSnapshot.forEach((doc) => highestPaid.push({ id: doc.id, ...doc.data() }));
+  highestPaid = highestPaid.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
+
+  dataSnapshot = await getDocs(query(collection(db, "posts"), where("location", "==", "Hồ Chí Minh"), limit(5)))
+  dataSnapshot.forEach((doc) => HCMCity.push({ id: doc.id, ...doc.data() }));
+  HCMCity = HCMCity.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
+
+  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("expiredTime", "desc"), limit(5)))
+  dataSnapshot.forEach((doc) => Expired.push({ id: doc.id, ...doc.data() }));
+  Expired = Expired.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
 
   return {
     props: {
       posts,
+      highestPaid,
+      HCMCity,
+      Expired
     },
   };
 }
 
-export default function Home({ posts }) {
+export default function Home({ posts, highestPaid, HCMCity, Expired }) {
   const iconSalary = (
     <svg width="0.97em" height="1em" viewBox="0 0 960 993">
       <path
@@ -118,9 +135,9 @@ export default function Home({ posts }) {
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-x-6">
-                <CategoriesNews icon={iconSalary} posts={posts} title={"VIỆC LÀM LƯƠNG CAO"} />
-                <CategoriesNews icon={iconCity} posts={posts} title={"VIỆC LÀM TP.HCM"} />
-                <CategoriesNews icon={iconExpired} posts={posts} title={"VIỆC LÀM SẮP HẾT HẠN TUYỂN DỤNG"} />
+                <CategoriesNews icon={iconSalary} posts={highestPaid} title={"VIỆC LÀM LƯƠNG CAO"} />
+                <CategoriesNews icon={iconCity} posts={HCMCity} title={"VIỆC LÀM TP.HCM"} />
+                <CategoriesNews icon={iconExpired} posts={Expired} title={"VIỆC LÀM SẮP HẾT HẠN TUYỂN DỤNG"} />
               </div>
             </div>
           </div>

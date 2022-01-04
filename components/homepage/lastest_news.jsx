@@ -1,9 +1,28 @@
-import Image from "next/image";
-import {Info } from "../Post"
+import { Info } from "../Post";
 import { format } from "date-fns";
 import vi from "date-fns/locale/vi";
+import { useEffect, useState } from "react";
+import { collection, documentId, getDocs, getFirestore, query, where } from "firebase/firestore";
 
-function LastestNews({posts}) {
+const db = getFirestore();
+
+function LastestNews({ posts }) {
+  const [HRs, setHRs] = useState({});
+
+  useEffect(() => {
+    const fetchHR = async () => {
+      const listHRId = posts?.map((post) => post.hr_id) || [];
+      const q = await query(collection(db, "users"), where(documentId(), "in", listHRId));
+      const dataSnapshot = await getDocs(q);
+      const _listHR = dataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      _listHR.forEach((hr) => {
+        setHRs({ ...HRs, [hr.id]: hr });
+      });
+    };
+
+    fetchHR();
+  }, [posts, db, setHRs]);
+
   return (
     <div className="w-full bg-white px-3 py-5 mb-8 rounded-md">
       <div className="font-bold text-xl flex items-center">
@@ -26,12 +45,12 @@ function LastestNews({posts}) {
                 <div className="w-full h-64 relative overflow-hidden">
                   <div className="px-6">
                     <div className="flex justify-start items-center">
-                      <div className="w-20 rounded-full">
-                        <Image src="/svg/logo.svg" height={32} width={32} layout="responsive" alt="profile image" />
+                      <div className="w-20 rounded-full flex justify-center">
+                        <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/images/logo.png"} alt="profile image" />
                       </div>
-                      <div className="ml-10">
+                      <div className="ml-6">
                         <div className="font-semibold text-xl hover:text-purple-700 hover:underline underline-offset-2 cursor-pointer">{post.title}</div>
-                        <div className="text-lg text-gray-500">Nguyễn Ngọc A</div>
+                        <div className="text-base text-gray-500">{HRs[post.hr_id]?.fullName}</div>
                         <div className="text-gray-500 mt-2 text-xs">Ngày đăng: {format(new Date(post.createTime), "dd MMMM yyyy", { locale: vi })}</div>
                       </div>
                     </div>
@@ -46,7 +65,7 @@ function LastestNews({posts}) {
                   </div>
 
                   <div className="absolute h-36 flex justify-center items-end bottom-0 left-0 right-0 bg-gradient-to-t from-white">
-                    <div className="mb-2 text-purple-500 text-lg font-semibold cursor-pointer">Xem chi tiết</div>
+                    <div className="mb-2 text-purple-500 text-sm font-semibold cursor-pointer">Xem chi tiết</div>
                   </div>
                 </div>
 

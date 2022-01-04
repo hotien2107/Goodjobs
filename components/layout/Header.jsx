@@ -31,7 +31,7 @@ function Header() {
         {!authUser ? (
           <div className='flex items-center'>
             <button
-              className='p-3 rounded-lg bg-purple-600 text-white font-bold transition-all duration-200 hover:bg-purple-800'
+              className='p-3 rounded-lg bg-purple-900 text-white font-bold transition-all duration-200 hover:bg-purple-800'
               onClick={() => router.push('/auth/login')}
             >
               Login
