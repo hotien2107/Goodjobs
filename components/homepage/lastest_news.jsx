@@ -3,8 +3,7 @@ import { format } from "date-fns";
 import vi from "date-fns/locale/vi";
 import { useEffect, useState } from "react";
 import { collection, documentId, getDocs, getFirestore, query, where } from "firebase/firestore";
-
-const db = getFirestore();
+import { db } from "../../config/firebase";
 
 function LastestNews({ posts }) {
   const [HRs, setHRs] = useState({});

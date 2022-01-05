@@ -3,40 +3,39 @@ import Head from "next/head";
 import Image from "next/image";
 import Footer from "../components/layout/Footer";
 import Header from "../components/layout/Header";
-import Post, { Control, Info } from "../components/Post";
 import SearchBar from "../components/SearchBar";
 import LastestNews from "../components/homepage/lastest_news";
 import CategoriesNews from "../components/homepage/categories_news";
-const db = getFirestore();
+import { db } from "../config/firebase";
 
 export async function getServerSideProps(context) {
   let posts = [];
-  let highestPaid = []
-  let HCMCity = []
-  let Expired = []
+  let highestPaid = [];
+  let HCMCity = [];
+  let Expired = [];
 
-  let dataSnapshot = await getDocs(query(collection(db, "posts"), limit(10)));
+  let dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("createTime", "desc"), limit(10)));
   dataSnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
   posts = posts.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
-  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("salary", "desc"), limit(5)))
+  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("salary", "desc"), limit(5)));
   dataSnapshot.forEach((doc) => highestPaid.push({ id: doc.id, ...doc.data() }));
-  highestPaid = highestPaid.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
+  highestPaid = highestPaid.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
-  dataSnapshot = await getDocs(query(collection(db, "posts"), where("location", "==", "Hồ Chí Minh"), limit(5)))
+  dataSnapshot = await getDocs(query(collection(db, "posts"), where("location", "==", "Hồ Chí Minh"), limit(5)));
   dataSnapshot.forEach((doc) => HCMCity.push({ id: doc.id, ...doc.data() }));
-  HCMCity = HCMCity.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
+  HCMCity = HCMCity.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
-  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("expiredTime", "desc"), limit(5)))
+  dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("expiredTime", "desc"), limit(5)));
   dataSnapshot.forEach((doc) => Expired.push({ id: doc.id, ...doc.data() }));
-  Expired = Expired.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }))
+  Expired = Expired.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   return {
     props: {
       posts,
       highestPaid,
       HCMCity,
-      Expired
+      Expired,
     },
   };
 }

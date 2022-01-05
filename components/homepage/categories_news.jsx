@@ -34,7 +34,7 @@ function CategoriesNews({ icon, posts, title }) {
           <div key={post.id} className="px-2 py-3 border-b-[0.5px] last:border-none">
             <div className="flex justify-start items-center">
               <div className="w-1/6 rounded-full">
-              <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/images/logo.svg"} alt="profile image" />
+                <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/svg/logo.svg"} alt="profile image" />
               </div>
               <div className="w-5/6 pl-6">
                 <div className="font-semibold text-base hover:text-purple-700 hover:underline underline-offset-2 cursor-pointer">
