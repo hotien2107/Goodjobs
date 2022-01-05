@@ -12,15 +12,19 @@ const ChatList = () => {
       {chatList.map((user) => {
         return (
           <li
-            key={user.uid}
+            key={user.id}
             className='flex cursor-pointer'
             onClick={() => {
-              router.push(`/chat/${user.uid}`);
+              router.push(`/chat/${user.id}`);
             }}
           >
-            {user.photoURL ? <img src={user.photoURL} alt='Avatar' className='w-8 h-8 rounded-full mr-4' /> : null}
+            {user.avatar ? (
+              <img src={user.avatar} alt='Avatar' className='w-8 h-8 rounded-full mr-4' />
+            ) : (
+              <div className='w-8 h-8 rounded-full bg-purple-600 text-white flex justify-center items-center'>{user.fullName[0]}</div>
+            )}
 
-            <p className=''>{user.displayName}</p>
+            <p className=''>{user.fullName}</p>
           </li>
         );
       })}

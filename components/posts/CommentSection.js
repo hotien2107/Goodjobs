@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
-import {query, collection, where, getDocs} from "firebase/firestore";
+import {query, collection, where, getDocs} from "@firebase/firestore";
 import {db} from "../../config/firebase";
-import {useAuth} from "../../context/auth-context";
 import useFirebaseAuth from "../../hooks/use-auth";
-import {FaPaperPlane} from "react-icons/fa";
 
 const CommentSection = ({postId}) => {
     const [comments, setComments] = useState([]);
@@ -22,38 +20,28 @@ const CommentSection = ({postId}) => {
             })
         }
         getComments();
-        console.log(authUser);
+        setTimeout(() => console.log(authUser), 5000);
     }, [])
 
     return (
         <div>
-            <section>
+            <section className="pl-2 py-2">
                 {comments.length === 0 ? <p>Leave first comment here</p> : null}
             </section>
             <section>
-                {/*{authUser ?*/}
-                {/*    <form className='left-0 flex w-full bg-slate-100 p-2'>*/}
-                {/*        /!*{authUser.photoURL ? <img src={authUser.photoURL}  alt="user-avt"/> : <div className="rounded-full h-12 w-12 bg-gray-500" />}*!/*/}
-                {/*        <div className="rounded-full h-12 w-12 bg-gray-500 mr-2"/>*/}
-                {/*        <input*/}
-                {/*            className='flex-grow h-12 p-2 rounded-full bg-white mr-2'*/}
-                {/*            type='text'*/}
-                {/*            value={userComment}*/}
-                {/*            onChange={(e) => setUserComment(e.target.value)}*/}
-                {/*            placeholder='Type your message here...'*/}
-                {/*        />*/}
-                {/*    </form> : null}*/}
-                <form className='left-0 flex w-full bg-slate-100 p-2'>
-                    {/*{authUser.photoURL ? <img src={authUser.photoURL}  alt="user-avt"/> : <div className="rounded-full h-12 w-12 bg-gray-500" />}*/}
-                    <div className="rounded-full h-12 w-12 bg-gray-500 mr-2"/>
-                    <input
-                        className='flex-grow h-12 p-2 rounded-full bg-white mr-2'
-                        type='text'
-                        value={userComment}
-                        onChange={(e) => setUserComment(e.target.value)}
-                        placeholder='Type your message here...'
-                    />
-                </form>
+                {authUser ?
+                    <form className='left-0 flex w-full bg-slate-100 p-2'>
+                        {authUser.avatar ?
+                            <img src={authUser.avatar} alt="user-avt" className="rounded-full h-12 w-12 mr-2"/> :
+                            <div className="rounded-full h-12 w-12 bg-gray-500 mr-2"/>}
+                        <input
+                            className='flex-grow h-12 p-2 rounded-full bg-white mr-2'
+                            type='text'
+                            value={userComment}
+                            onChange={(e) => setUserComment(e.target.value)}
+                            placeholder='Type your message here...'
+                        />
+                    </form> : null}
             </section>
         </div>
     )

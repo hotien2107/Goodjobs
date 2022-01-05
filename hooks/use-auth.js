@@ -1,4 +1,10 @@
-import { GoogleAuthProvider, signInWithPopup } from '@firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from '@firebase/auth';
 import { addDoc, collection, getDocs, onSnapshot, query, where } from '@firebase/firestore';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -34,12 +40,11 @@ export default function useFirebaseAuth() {
     setLoading(true);
 
     const userRef = collection(db, 'users');
-    const q = query(userRef, where("uid", "==", authState.uid));
+    const q = query(userRef, where('id', '==', authState.uid));
 
     onSnapshot(q, (querySnapshot) => {
       const data = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
+        ...doc.data()
       }));
 
       setAuthUser(data[0]);
@@ -56,12 +61,16 @@ export default function useFirebaseAuth() {
         return;
       }
 
-      if (users.findIndex((userId) => userId.uid === loginRes.user.uid) < 0) {
+      if (users.findIndex((userId) => userId.id === loginRes.user.uid) < 0) {
         await addDoc(collection(db, 'users'), {
-          uid: loginRes.user.uid,
-          displayName: loginRes.user.displayName,
-          photoURL: loginRes.user.photoURL,
+          id: loginRes.user.uid,
+          fullName: loginRes.user.displayName,
+          email: loginRes.user.email,
+          avatar: loginRes.user.photoURL,
           role: 1,
+          DOB: 0,
+          isDelete: false,
+          phoneNumber: '',
         });
       }
 
@@ -71,9 +80,56 @@ export default function useFirebaseAuth() {
     }
   };
 
+  // sign up with email and password
+  const signUpWithEmailAndPassword = async (signUpSuccess, email, password, fullName) => {
+    try {
+      const signUpRef = await createUserWithEmailAndPassword(auth, email, password);
+
+      if (!signUpRef.user) {
+        return;
+      }
+
+      if (users.findIndex((userId) => userId.uid === signUpRef.user.uid) < 0) {
+        await addDoc(collection(db, 'users'), {
+          id: signUpRef.user.uid,
+          fullName: fullName,
+          email: email,
+          avatar: signUpRef.user.photoURL,
+          role: 1,
+          DOB: 0,
+          isDelete: false,
+          phoneNumber: '',
+        });
+      }
+
+      signUpSuccess();
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // login with email and password
+  const LoginWithEmailAndPassword = async (loginSuccess, email, password) => {
+    try {
+      const loginRef = await signInWithEmailAndPassword(auth, email, password);
+
+      if (!loginRef.user) {
+        return;
+      }
+
+      loginSuccess();
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    return await sendPasswordResetEmail(auth, email);
+  };
+
   const logout = async () => {
     try {
-      router.push('/login');
+      router.push('/auth/login');
       await auth.signOut();
     } catch (error) {
       console.log(error.message);
@@ -90,6 +146,9 @@ export default function useFirebaseAuth() {
     authUser,
     loading,
     loginGoogle,
+    signUp: signUpWithEmailAndPassword,
+    loginEmail: LoginWithEmailAndPassword,
     logout,
+    forgotPassword,
   };
 }
