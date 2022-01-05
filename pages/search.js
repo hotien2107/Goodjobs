@@ -29,15 +29,15 @@ export async function getServerSideProps(context) {
   dataSnapshot = await getDocs(q);
   let posts = [];
   const HRs = {};
-  dataSnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
+  dataSnapshot.forEach((doc) => posts.push({ ...doc.data() }));
 
   posts = posts.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   let listHRId = posts.map((post) => post.hr_id);
   if (listHRId.length > 0) {
-    q = await query(collection(db, "users"), where(documentId(), "in", listHRId));
+    q = await query(collection(db, "users"), where("id", "in", listHRId));
     dataSnapshot = await getDocs(q);
-    const listHRs = dataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const listHRs = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
     listHRs.forEach((hr) => {
       HRs[hr.id] = hr;
     });

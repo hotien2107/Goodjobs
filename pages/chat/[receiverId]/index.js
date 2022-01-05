@@ -1,13 +1,8 @@
-import { collection, limit, onSnapshot, orderBy, query } from '@firebase/firestore';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import React from 'react';
 import ChatBox from '../../../components/chat-box';
 import ChatList from '../../../components/chat-list';
 import Header from '../../../components/layout/Header';
-import { db } from '../../../config/firebase';
-import useFirebaseAuth from '../../../hooks/use-auth';
-import useChatList from '../../../hooks/use-chat-list';
 
 const Chat = () => {
   return (

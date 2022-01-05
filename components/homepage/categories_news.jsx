@@ -10,9 +10,9 @@ function CategoriesNews({ icon, posts, title }) {
   useEffect(() => {
     const fetchHR = async () => {
       const listHRId = posts?.map((post) => post.hr_id) || [];
-      const q = await query(collection(db, "users"), where(documentId(), "in", listHRId));
+      const q = await query(collection(db, "users"), where("id", "in", listHRId));
       const dataSnapshot = await getDocs(q);
-      const _listHR = dataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const _listHR = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
       _listHR.forEach((hr) => {
         setHRs({ ...HRs, [hr.id]: hr });
       });

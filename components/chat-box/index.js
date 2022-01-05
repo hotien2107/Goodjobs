@@ -15,7 +15,7 @@ const ChatBox = () => {
   const auth = useFirebaseAuth();
   const { authUser } = auth;
 
-  const roomChat = authUser?.uid < receiverId ? `${authUser?.uid}_${receiverId}` : `${receiverId}_${authUser?.uid}`;
+  const roomChat = authUser?.id < receiverId ? `${authUser?.id}_${receiverId}` : `${receiverId}_${authUser?.id}`;
 
   useEffect(() => {
     const getMessages = async () => {
@@ -25,7 +25,6 @@ const ChatBox = () => {
       onSnapshot(q, (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
-          id: doc.id,
         }));
 
         setMessages(data);
@@ -39,16 +38,16 @@ const ChatBox = () => {
     e.preventDefault();
     const addMess = async () => {
       await setDoc(doc(db, 'chats', `${roomChat}`), {
-        participants: [authUser.uid, receiverId],
+        participants: [authUser.id, receiverId],
       });
 
       await addDoc(collection(db, 'chats', `${roomChat}`, 'messages'), {
         text: newMessage,
         createdAt: Date.now(),
-        participants: [authUser.uid, receiverId],
-        uid: authUser.uid,
-        displayName: authUser.displayName,
-        photoURL: authUser.photoURL,
+        participants: [authUser.id, receiverId],
+        id: authUser.id,
+        fullName: authUser.fullName,
+        avatar: authUser.avatar,
       });
 
       setNewMessage('');
@@ -65,25 +64,29 @@ const ChatBox = () => {
       <div className='w-full h-full overflow-y-scroll'>
         <ul className='w-full flex flex-col'>
           {messages.length > 0
-            ? messages.map((message) => {
+            ? messages.map((message, key) => {
                 return (
                   <li
-                    key={message.id}
-                    className={'mb-4 ' + (message.uid === authUser?.uid ? 'max-w-xs self-end text-right ' : 'max-w-xs self-start text-left ')}
+                    key={key}
+                    className={'mb-4 ' + (message.id === authUser?.id ? 'max-w-xs self-end text-right ' : 'max-w-xs self-start text-left ')}
                   >
-                    <section className={'flex  ' + (message.uid === authUser?.uid ? '' : 'flex-row-reverse')}>
+                    <section className={'flex  ' + (message.id === authUser?.id ? '' : 'flex-row-reverse')}>
                       {/* display message text */}
                       <p
                         className={
                           'mr-4 ' +
-                          (message.uid === authUser?.uid ? 'bg-purple-600 p-2 rounded-lg text-white' : 'bg-white p-2 rounded-lg text-purple-900 ml-4')
+                          (message.id === authUser?.id ? 'bg-purple-600 p-2 rounded-lg text-white' : 'bg-white p-2 rounded-lg text-purple-900 ml-4')
                         }
                       >
                         {message.text}
                       </p>
 
                       {/* display user image */}
-                      {message.photoURL ? <img src={message.photoURL} alt='' className='w-8 h-8 rounded-full' /> : null}
+                      {message.avatar ? (
+                        <img src={message.avatar} alt='' className='w-8 h-8 rounded-full' />
+                      ) : (
+                        <div className='w-8 h-8 rounded-full bg-purple-600 text-white flex justify-center items-center'>{message.fullName[0]}</div>
+                      )}
                     </section>
                   </li>
                 );

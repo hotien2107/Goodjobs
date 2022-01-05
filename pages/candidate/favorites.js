@@ -7,32 +7,48 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../../components/layout/Header";
 import SearchBar from "../../components/SearchBar";
+import useFirebaseAuth from "../../hooks/use-auth";
+import Footer from "../../components/layout/Footer";
 
 const db = getFirestore();
 
 function FavoritePosts() {
-  const user_id = "8vl3sOWFx7I1WgUx3DjV";
+  const auth = useFirebaseAuth();
   const [favorites, setFavorites] = useState([]);
+  const [HRs, setHRs] = useState({});
   const [toggle, setToggle] = useState(false);
+  const { authUser, loading } = auth;
+
   useEffect(() => {
     const fetchFavoritePosts = async () => {
-      let queryObj = await query(collection(db, "favorites"), where("user_id", "==", user_id));
+      let queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id));
       let dataSnapshot = await getDocs(queryObj);
       let fav = [];
-      fav = dataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      fav = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
       let favorite_id = fav.map((fav) => fav.post_id);
       if (favorite_id.length > 0) {
-        queryObj = await query(collection(db, "posts"), where(documentId(), "in", favorite_id));
-        onSnapshot(queryObj, (snapshot) => {
-          fav = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          fav = fav.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
-          setFavorites(fav);
-        });
+        queryObj = await query(collection(db, "posts"), where("id", "in", favorite_id));
+        dataSnapshot = await getDocs(queryObj);
+        fav = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
+        fav = fav.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
+
+        let listHRId = fav.map((post) => post.hr_id);
+        if (listHRId.length > 0) {
+          queryObj = await query(collection(db, "users"), where("id", "in", listHRId));
+          dataSnapshot = await getDocs(queryObj);
+          const listHRs = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
+          listHRs.forEach((hr) => {
+            setHRs({ ...HRs, [hr.id]: hr });
+          });
+        }
+        setFavorites(fav);
       }
     };
 
-    fetchFavoritePosts();
-  }, [setFavorites, db, toggle]);
+    if (authUser) {
+      fetchFavoritePosts();
+    }
+  }, [setFavorites, db, toggle, authUser]);
 
   async function removeFavorite(post_id) {
     const queryObj = await query(collection(db, "favorites"), where("user_id", "==", user_id), where("post_id", "==", post_id));
@@ -46,20 +62,22 @@ function FavoritePosts() {
 
   return (
     <div>
-      <Header />
-      <SearchBar />
+      <div>
+        <Header />
+        <SearchBar />
+      </div>
       <div className="w-full flex justify-center pb-72">
-        <div className="w-3/5 max-w-screen-xl">
+        <div className="w-3/5 max-w-screen-xl mt-6">
           {favorites.map((post) => (
             <div key={post.id} className="w-full min-h-[120px] shadow-[0_0_10px_5px_rgba(0,0,0,0.1)] rounded-lg py-5 mb-5">
               <div className="flex justify-between items-center px-20">
                 <div className="flex justify-start items-center">
                   <div className="w-20 rounded-full">
-                    <Image src="/svg/logo.svg" height={32} width={32} layout="responsive" alt="profile image" />
+                    <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/svg/logo.svg"} alt="profile image" />
                   </div>
-                  <div className="ml-10">
+                  <div className="ml-6">
                     <div className="font-semibold text-xl">{post.title}</div>
-                    <div className="text-purple-900 font-bold mt-2">Nguyễn Ngọc A</div>
+                    <div className="text-purple-900 font-bold mt-2">{HRs[post.hr_id]?.fullName}</div>
                     <div className="text-gray-500 italic mt-2">Hạn ứng tuyển: {format(new Date(post.expiredTime), "dd MMMM yyyy", { locale: vi })}</div>
                   </div>
                 </div>
@@ -78,6 +96,7 @@ function FavoritePosts() {
         </div>
       </div>
       <ToastContainer />
+      <Footer />
     </div>
   );
 }

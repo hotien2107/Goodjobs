@@ -15,19 +15,19 @@ export async function getServerSideProps(context) {
   let Expired = [];
 
   let dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("createTime", "desc"), limit(10)));
-  dataSnapshot.forEach((doc) => posts.push({ id: doc.id, ...doc.data() }));
+  dataSnapshot.forEach((doc) => posts.push({ ...doc.data() }));
   posts = posts.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("salary", "desc"), limit(5)));
-  dataSnapshot.forEach((doc) => highestPaid.push({ id: doc.id, ...doc.data() }));
+  dataSnapshot.forEach((doc) => highestPaid.push({ ...doc.data() }));
   highestPaid = highestPaid.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   dataSnapshot = await getDocs(query(collection(db, "posts"), where("location", "==", "Hồ Chí Minh"), limit(5)));
-  dataSnapshot.forEach((doc) => HCMCity.push({ id: doc.id, ...doc.data() }));
+  dataSnapshot.forEach((doc) => HCMCity.push({ ...doc.data() }));
   HCMCity = HCMCity.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   dataSnapshot = await getDocs(query(collection(db, "posts"), orderBy("expiredTime", "desc"), limit(5)));
-  dataSnapshot.forEach((doc) => Expired.push({ id: doc.id, ...doc.data() }));
+  dataSnapshot.forEach((doc) => Expired.push({ ...doc.data() }));
   Expired = Expired.map((post) => ({ ...post, createTime: post.createTime.toDate().toString(), expiredTime: post.expiredTime.toDate().toString() }));
 
   return {

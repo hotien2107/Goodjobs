@@ -14,7 +14,18 @@ const useChatList = () => {
       const querySnapshot = await getDocs(collection(db, 'chats'));
       querySnapshot.forEach((doc) => {
         const list = [...listParticipants];
-        list.push(doc.data());
+        if (
+          doc.data().participants.findIndex((data) => {
+            return data === authUser?.id;
+          })
+        ) {
+          if (
+            list.findIndex((item) => {
+              return item === doc.data();
+            }) < 0
+          )
+          list.push(doc.data());
+        }        
         setListParticipants(list);
       });
     };
@@ -23,22 +34,21 @@ const useChatList = () => {
 
   useEffect(() => {
     const userList = listParticipants.map((item) => {
-      if (authUser) return item.participants.find((user) => user !== authUser.uid);
+      if (authUser) return item.participants.find((user) => user !== authUser.id);
       return [];
     });
 
     userList.map((user) => {
       const userRef = collection(db, 'users');
-      const q = query(userRef, where('uid', '==', user));
+      const q = query(userRef, where('id', '==', user));
 
       onSnapshot(q, (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
-          id: doc.id,
         }));
 
         setChatList((list) => {
-          if (list.findIndex((user) => user.uid === data.uid) < 0) {
+          if (list.findIndex((user) => user.id === data.id) < 0) {
             return [...list, ...data];
           } else {
             return list;

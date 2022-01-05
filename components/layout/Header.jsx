@@ -23,7 +23,7 @@ function Header() {
 
         <div className="flex items-center w-1/2 justify-around">
           <Link href="/">
-            <div className="font-bold text-purple-900 underline underline-offset-4">Trang chủ</div>
+            <div className="font-bold text-purple-900 underline underline-offset-4 cursor-pointer">Trang chủ</div>
           </Link>
           <div>Mẹo tuyển dụng</div>
           <div>Template CV</div>
@@ -43,7 +43,7 @@ function Header() {
             {/* chatting - start */}
             <div className="flex">
               <div className="flex items-center mr-5">
-                <Link href={"/chat/" + chatList[0]?.uid}>
+                <Link href={"/chat/" + chatList[0]?.id}>
                   <div className="bg-gray-200 rounded-full p-3 text-purple-900 cursor-pointer transition-all duration-200 hover:bg-purple-900 hover:text-white">
                     <FaCommentAlt className="text-2xl" />
                   </div>
@@ -65,7 +65,7 @@ function Header() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center">
+                <div className="flex items-center" onClick={() => router.push("/candidate/favorites")}>
                   <div className="bg-gray-200 rounded-full p-3 text-purple-900 cursor-pointer transition-all duration-200 hover:bg-purple-900 hover:text-white">
                     <FaHeart className="text-2xl" />
                   </div>
