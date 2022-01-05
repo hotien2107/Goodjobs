@@ -1,7 +1,10 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {db} from "../../config/firebase";
 import {doc, getDoc} from "firebase/firestore";
 import {useRouter} from "next/router";
+import {format} from "date-fns";
+import {vi} from "date-fns/locale";
+import CommentSection from "./CommentSection";
 
 export function RiSearchLine(props) {
     return (
@@ -15,35 +18,80 @@ export function IcBaselineSaveAlt(props) {
     )
 }
 
-function toDateTime(secs) {
-    const t = new Date(1970, 0, 1); // Epoch
-    t.setSeconds(secs);
-    return t;
+const postDataTemplate = {
+    id: "",
+    requirement: [],
+    job_description: [],
+    benefit: [],
+    createTime: "",
+    expiredTime: "",
+
 }
 
 const PostDetail = () => {
     const router = useRouter();
     const [postId, setPostId] = useState("");
-    const [postData, setPostData] = useState({});
+    const [postData, setPostData] = useState(postDataTemplate);
+    const [commentActive, setCommentActive] = useState(true);
 
-    useEffect(() => {
+    useEffect(async () => {
         const getPost = async () => {
             if (!router.isReady) return;
             const {postId} = router.query;
             setPostId(postId);
             const docRef = doc(db, "posts", postId.toString());
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                console.log("Document data:", docSnap.data());
-                setPostData(docSnap.data());
-            } else {
-                // doc.data() will be undefined in this case
-                console.log("No such document!");
-            }
+            getDoc(docRef).then((docSnap) => {
+                if (docSnap.exists()) {
+                    console.log("Document data:", docSnap.data());
+                    // const hrRef = doc(db, "users", docSnap.data().hr_id)
+                    // getDoc(hrRef).then((hrSnap) => {
+                    //     if (hrSnap.exists()) {
+                    //         console.log(hrSnap.data());
+                    //     } else {
+                    //         console.log("No such document!");
+                    //     }
+                    // })
+                    const data = {
+                        id: postId,
+                        ...docSnap.data(),
+                        requirement: docSnap.data().requirement.split("\n"),
+                        job_description: docSnap.data().job_description.split("\n"),
+                        benefit: docSnap.data().benefit.split("\n"),
+                        createTime: docSnap.data().createTime.toDate().toString(),
+                        expiredTime: docSnap.data().expiredTime.toDate().toString(),
+                    }
+                    setPostData(data);
+                } else {
+                    // doc.data() will be undefined in this case
+                    console.log("No such document!");
+                }
+            });
+
         }
 
-        getPost();
+        await getPost();
     }, [router.isReady]);
+
+    const handleRateClick = () => {
+        setCommentActive(false);
+    }
+
+    const handleCommentClick = () => {
+        setCommentActive(true);
+    }
+
+    const commentSection = (
+        <div>
+            <p>llllll</p>
+        </div>
+    )
+
+    const ratingSection = (
+        <div className="text-center">
+            <p>In construction</p>
+            <p>...</p>
+        </div>
+    )
 
     return (
         <>
@@ -54,7 +102,11 @@ const PostDetail = () => {
                         <h5>{postData.location}</h5>
                         <p><b>Vị trí:</b> {postData.level}</p>
                         <p><b>Số lượng:</b> {postData.quantity}</p>
-                        <p>Ten gi do o day</p>
+                        <p><b>Thời hạn:</b> {format(new Date(postData.createTime), "dd MMMM yyyy", { locale: vi })}</p>
+                        <section className="flex items-center gap-2 mt-2">
+                            <div className="rounded-full h-12 w-12 bg-gray-500 mr-2"/>
+                            <p>Ten HR</p>
+                        </section>
                     </div>
                     <div className="flex flex-col justify-end gap-4">
                         <button className="flex items-center gap-4 text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded">
@@ -67,15 +119,31 @@ const PostDetail = () => {
                 </div>
                 <div className="bg-white drop-shadow-lg rounded-lg w-3/5 mb-8 p-5">
                     <h1 className="font-bold">Mô tả công việc</h1>
-                    <p className="pl-8">{postData["job_description"]}</p>
+                    <ul className="list-disc pl-8">
+                        {postData.job_description.map((descriptionLine, index) => (
+                            <li key={index}>{descriptionLine}</li>
+                        ))}
+                    </ul>
                     <h1 className="font-bold">Yêu cầu công việc</h1>
-                    <p className="pl-8">{postData.requirement}</p>
+                    <ul className="list-disc pl-8">
+                        {postData.requirement.map((requirementLine, index) => (
+                            <li key={index}>{requirementLine}</li>
+                        ))}
+                    </ul>
                     <h1 className="font-bold">Quyền lợi</h1>
-                    <p className="pl-8">{postData.benefit}</p>
-                    <p>{toDateTime(postData.expiredTime).toString()}</p>
+                    <ul className="list-disc pl-8">
+                        {postData.benefit.map((benefitLine, index) => (
+                            <li key={index}>{benefitLine}</li>
+                        ))}
+                    </ul>
+                    {/*<p>{format(new Date(postData.createTime), "dd MMMM yyyy", { locale: vi })}</p>*/}
                 </div>
-                <div className="bg-white drop-shadow-lg rounded-lg w-3/5 mb-8 p-5">
-                    <p>Khung binh luan va danh gia</p>
+                <div className="bg-white drop-shadow-lg rounded-lg w-3/5 mb-8 overflow-hidden">
+                    <ul className="flex h-8">
+                        <li className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-r ${commentActive ? "text-indigo-500" : "bg-gray-200"}`} onClick={handleCommentClick}>Bình luận</li>
+                        <li className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-l ${commentActive ? "bg-gray-200" : "text-indigo-500"}`} onClick={handleRateClick}>Đánh giá</li>
+                    </ul>
+                    {commentActive ? <CommentSection postId={postId} /> : ratingSection}
                 </div>
             </section>
         </>
