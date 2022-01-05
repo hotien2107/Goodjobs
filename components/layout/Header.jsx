@@ -42,7 +42,7 @@ function Header() {
             {/* chatting - start */}
             <div className='flex'>
               <div className='flex items-center mr-5'>
-                <Link href={'/chat/' + chatList[0]?.uid}>
+                <Link href={'/chat/' + chatList[0]?.id}>
                   <div className='bg-gray-200 rounded-full p-3 text-purple-900 cursor-pointer transition-all duration-200 hover:bg-purple-900 hover:text-white'>
                     <FaCommentAlt className='text-2xl' />
                   </div>
