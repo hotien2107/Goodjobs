@@ -3,7 +3,7 @@ import Footer from "../../../components/layout/Footer";
 import Header from "../../../components/layout/Header";
 import SearchBar from "../../../components/SearchBar";
 import generateKeywords from "../../../helpers/generatekeywords";
-import { addDoc, collection, getFirestore, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../context/auth-context";
@@ -30,9 +30,10 @@ export default function CreatePost() {
   async function createPost() {
     const newPost = validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef, authUser?.id);
     if (newPost) {
-      const docRef = await addDoc(collection(db, "posts"), newPost);
+      const docRef = doc(collection(db, "posts"));
+      await setDoc(docRef, { ...newPost, id: docRef.id });
       toast.success("Tạo bản tin tuyển dụng thành công");
-      router.push("/")
+      router.push("/");
     }
   }
 
