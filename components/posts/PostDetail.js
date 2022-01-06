@@ -1,22 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {db} from "../../config/firebase";
+import {db, storage} from "../../config/firebase";
 import {useRouter} from "next/router";
 import {format} from "date-fns";
 import {vi} from "date-fns/locale";
 import CommentSection from "./CommentSection";
 import {query, collection, getDocs, where, doc, getDoc, limit} from "@firebase/firestore";
-
-export function RiSearchLine(props) {
-    return (
-        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M18.031 16.617l4.283 4.282l-1.415 1.415l-4.282-4.283A8.96 8.96 0 0 1 11 20c-4.968 0-9-4.032-9-9s4.032-9 9-9s9 4.032 9 9a8.96 8.96 0 0 1-1.969 5.617zm-2.006-.742A6.977 6.977 0 0 0 18 11c0-3.868-3.133-7-7-7c-3.868 0-7 3.132-7 7c0 3.867 3.132 7 7 7a6.977 6.977 0 0 0 4.875-1.975l.15-.15z" fill="currentColor"/></svg>
-    )
-}
-
-export function IcBaselineSaveAlt(props) {
-    return (
-        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5l-5-5l1.41-1.41L11 12.67V3h2z" fill="currentColor"/></svg>
-    )
-}
+import {ref, uploadBytes} from "@firebase/storage"
+import Modal from "../Modal";
+import {GrDocumentUser} from "react-icons/gr"
+import {MdOutlineSaveAlt} from "react-icons/md"
+import useFirebaseAuth from "../../hooks/use-auth";
+import {nanoid} from "nanoid/async"
+import {toast, ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
 
 const postDataTemplate = {
     id: "",
@@ -34,6 +30,14 @@ const PostDetail = () => {
     const [postId, setPostId] = useState("");
     const [postData, setPostData] = useState(postDataTemplate);
     const [commentActive, setCommentActive] = useState(true);
+    const [applyFormVisible, setApplyFormVisible] = useState(false);
+    const [uploadedCV, setUploadedCV] = useState(null);
+    const auth = useFirebaseAuth();
+    const {authUser} = auth;
+
+    useEffect(() => {
+        console.log(uploadedCV);
+    }, [uploadedCV]);
 
     useEffect(async () => {
         const getPost = async () => {
@@ -80,6 +84,39 @@ const PostDetail = () => {
         setCommentActive(true);
     }
 
+    const handleApplyClick = () => {
+        setApplyFormVisible(true);
+    }
+
+    const handleApplyFormClose = () => {
+        setApplyFormVisible(false);
+    }
+
+    const handleApplySubmit = async () => {
+        if (uploadedCV === null) {
+            toast.error("Bạn đang để trống CV", {
+                position: toast.POSITION.TOP_CENTER
+            });
+        } else {
+            const randomId = await nanoid();
+            const fileName = `${authUser.fullName}_${randomId}.${uploadedCV.name.split('.').at(-1)}`
+            const cvRef = ref(storage, `CV/${fileName}`);
+
+            toast.loading("CV đang được tải lên", {
+                position: toast.POSITION.TOP_CENTER,
+                autoClose: false,
+                toastId: "loadingCV"
+            })
+            uploadBytes(cvRef, uploadedCV).then((snapshot) => {
+                setApplyFormVisible(false);
+                toast.dismiss("loadingCV");
+                toast.success("Đã nộp CV thành công", {
+                    position: toast.POSITION.TOP_CENTER
+                })
+            })
+        }
+    }
+
     const ratingSection = (
         <div className="text-center">
             <p>In construction</p>
@@ -89,6 +126,7 @@ const PostDetail = () => {
 
     return (
         <>
+            <ToastContainer className="absolute z-50" limit={3} autoClose={3000}/>
             <section className="flex flex-col items-center">
                 <div className="bg-white drop-shadow-lg rounded-lg w-4/5 my-8 p-5 flex justify-between">
                     <div className="flex flex-col">
@@ -103,11 +141,11 @@ const PostDetail = () => {
                         </section>
                     </div>
                     <div className="flex flex-col justify-end gap-4">
-                        <button className="flex items-center gap-4 text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded">
-                            <RiSearchLine />
+                        <button className="flex items-center gap-4 text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded" onClick={handleApplyClick}>
+                            <GrDocumentUser />
                             Ứng tuyển</button>
                         <button className="flex items-center gap-4 text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded">
-                            <IcBaselineSaveAlt />
+                            <MdOutlineSaveAlt />
                             Lưu tin</button>
                     </div>
                 </div>
@@ -141,6 +179,16 @@ const PostDetail = () => {
                     {commentActive ? <CommentSection postId={postId} /> : ratingSection}
                 </div>
             </section>
+            <Modal open={applyFormVisible} onClose={handleApplyFormClose}>
+                <form action="#">
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="cv-file" className="font-semibold">Tải lên CV</label>
+                        <input type="file" id="cv-file" accept="application/pdf" onChange={(e) => setUploadedCV(e.target.files[0])} />
+                        <button className="text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded self-end" onClick={handleApplySubmit}>
+                            Ứng tuyển</button>
+                    </div>
+                </form>
+            </Modal>
         </>
     );
 }
