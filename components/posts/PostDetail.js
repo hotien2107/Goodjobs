@@ -8,13 +8,13 @@ import {query, collection, getDocs, where, doc, getDoc, limit} from "@firebase/f
 
 export function RiSearchLine(props) {
     return (
-        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M18.031 16.617l4.283 4.282l-1.415 1.415l-4.282-4.283A8.96 8.96 0 0 1 11 20c-4.968 0-9-4.032-9-9s4.032-9 9-9s9 4.032 9 9a8.96 8.96 0 0 1-1.969 5.617zm-2.006-.742A6.977 6.977 0 0 0 18 11c0-3.868-3.133-7-7-7c-3.868 0-7 3.132-7 7c0 3.867 3.132 7 7 7a6.977 6.977 0 0 0 4.875-1.975l.15-.15z" fill="currentColor"></path></svg>
+        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M18.031 16.617l4.283 4.282l-1.415 1.415l-4.282-4.283A8.96 8.96 0 0 1 11 20c-4.968 0-9-4.032-9-9s4.032-9 9-9s9 4.032 9 9a8.96 8.96 0 0 1-1.969 5.617zm-2.006-.742A6.977 6.977 0 0 0 18 11c0-3.868-3.133-7-7-7c-3.868 0-7 3.132-7 7c0 3.867 3.132 7 7 7a6.977 6.977 0 0 0 4.875-1.975l.15-.15z" fill="currentColor"/></svg>
     )
 }
 
 export function IcBaselineSaveAlt(props) {
     return (
-        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5l-5-5l1.41-1.41L11 12.67V3h2z" fill="currentColor"></path></svg>
+        <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5l-5-5l1.41-1.41L11 12.67V3h2z" fill="currentColor"/></svg>
     )
 }
 
@@ -23,9 +23,10 @@ const postDataTemplate = {
     requirement: [],
     job_description: [],
     benefit: [],
-    createTime: "",
-    expiredTime: "",
-    hr_info: {}
+    createTime: 0,
+    expiredTime: 0,
+    hr_info: {},
+    salary: 0
 }
 
 const PostDetail = () => {
@@ -55,11 +56,10 @@ const PostDetail = () => {
                         requirement: docSnap.data().requirement.split("\n"),
                         job_description: docSnap.data().job_description.split("\n"),
                         benefit: docSnap.data().benefit.split("\n"),
-                        createTime: docSnap.data().createTime.toDate().toDateString(),
-                        expiredTime: docSnap.data().expiredTime.toDate().toDateString(),
+                        createTime: docSnap.data().createTime.toDate().toString(),
+                        expiredTime: docSnap.data().expiredTime.toDate().toString(),
                         hr_info: userInfo,
                     }
-                    console.log(data.expiredTime);
                     setPostData(data);
                 } else {
                     // doc.data() will be undefined in this case
@@ -96,7 +96,7 @@ const PostDetail = () => {
                         <h5>{postData.location}</h5>
                         <p><b>Vị trí:</b> {postData.level}</p>
                         <p><b>Số lượng:</b> {postData.quantity}</p>
-                        {/*<p><b>Thời hạn:</b> {format(new Date(postData.createTime), "dd MMMM yyyy", { locale: vi })}</p>*/}
+                        <p><b>Thời hạn:</b> {format(new Date(postData.expiredTime), "dd MMMM yyyy", { locale: vi })}</p>
                         <section className="flex items-center gap-2 mt-2">
                             {postData.hr_info ? <img className="rounded-full h-12 w-12" src={postData.hr_info.avatar}  alt=""/> : <div className="rounded-full h-12 w-12 bg-gray-500 mr-2"/>}
                             <p>{postData.hr_info.fullName}</p>
@@ -124,13 +124,14 @@ const PostDetail = () => {
                             <li key={index}>{requirementLine}</li>
                         ))}
                     </ul>
+                    <h1 className="font-bold">Mức lương</h1>
+                    <p className="pl-8">{postData.salary.toLocaleString()} VNĐ</p>
                     <h1 className="font-bold">Quyền lợi</h1>
                     <ul className="list-disc pl-8">
                         {postData.benefit.map((benefitLine, index) => (
                             <li key={index}>{benefitLine}</li>
                         ))}
                     </ul>
-                    {/*<p>{format(new Date(postData.createTime), "dd MMMM yyyy", { locale: vi })}</p>*/}
                 </div>
                 <div className="bg-white drop-shadow-lg rounded-lg w-4/5 mb-8 overflow-hidden">
                     <ul className="flex h-8">
