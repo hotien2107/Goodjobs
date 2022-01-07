@@ -5,7 +5,7 @@ import {format} from "date-fns";
 import {vi} from "date-fns/locale";
 import CommentSection from "./CommentSection";
 import {query, collection, getDocs, where, doc, getDoc, limit} from "@firebase/firestore";
-import {ref, uploadBytes} from "@firebase/storage"
+import {ref, uploadBytes, getDownloadURL} from "@firebase/storage"
 import Modal from "../Modal";
 import {GrDocumentUser} from "react-icons/gr"
 import {MdOutlineSaveAlt} from "react-icons/md"
@@ -13,6 +13,7 @@ import useFirebaseAuth from "../../hooks/use-auth";
 import {nanoid} from "nanoid/async"
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"
+import {addDoc} from "@firebase/firestore";
 
 const postDataTemplate = {
     id: "",
@@ -32,6 +33,7 @@ const PostDetail = () => {
     const [commentActive, setCommentActive] = useState(true);
     const [applyFormVisible, setApplyFormVisible] = useState(false);
     const [uploadedCV, setUploadedCV] = useState(null);
+    const [cvSubmitDisable, setCVSubmitDisable] = useState(false);
     const auth = useFirebaseAuth();
     const {authUser} = auth;
 
@@ -93,6 +95,7 @@ const PostDetail = () => {
     }
 
     const handleApplySubmit = async () => {
+        setCVSubmitDisable(true);
         if (uploadedCV === null) {
             toast.error("Bạn đang để trống CV", {
                 position: toast.POSITION.TOP_CENTER
@@ -108,10 +111,17 @@ const PostDetail = () => {
                 toastId: "loadingCV"
             })
             uploadBytes(cvRef, uploadedCV).then((snapshot) => {
-                setApplyFormVisible(false);
-                toast.dismiss("loadingCV");
-                toast.success("Đã nộp CV thành công", {
-                    position: toast.POSITION.TOP_CENTER
+                addDoc(collection(db, "user_applying"), {
+                    user_id: authUser.id,
+                    post_id: postId,
+                    cv_path: snapshot.metadata.fullPath
+                }).then(() => {
+                    setApplyFormVisible(false);
+                    setCVSubmitDisable(false);
+                    toast.dismiss("loadingCV");
+                    toast.success("Đã nộp CV thành công", {
+                        position: toast.POSITION.TOP_CENTER
+                    });
                 })
             })
         }
@@ -184,7 +194,7 @@ const PostDetail = () => {
                     <div className="flex flex-col gap-2">
                         <label htmlFor="cv-file" className="font-semibold">Tải lên CV</label>
                         <input type="file" id="cv-file" accept="application/pdf" onChange={(e) => setUploadedCV(e.target.files[0])} />
-                        <button className="text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded self-end" onClick={handleApplySubmit}>
+                        <button className="text-white w-32 p-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded self-end" onClick={handleApplySubmit} disabled={cvSubmitDisable} >
                             Ứng tuyển</button>
                     </div>
                 </form>
