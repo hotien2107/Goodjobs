@@ -6,12 +6,14 @@ import { db } from "../config/firebase";
 import useFirebaseAuth from "../hooks/use-auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 
 export default function Post({ post, HRs }) {
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [liked, setLiked] = useState(false);
   const auth = useFirebaseAuth();
   const { authUser, loading } = auth;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -80,7 +82,9 @@ export default function Post({ post, HRs }) {
             </div>
 
             <div className="absolute h-36 flex justify-center items-end bottom-0 left-0 right-0 bg-gradient-to-t from-white">
-              <div className="mb-2 text-purple-500 text-base font-semibold">Xem chi tiết</div>
+              <div onClick={() => router.push(`/posts/${post.id}`)} className="mb-2 text-purple-500 text-base font-semibold">
+                Xem chi tiết
+              </div>
             </div>
           </div>
 

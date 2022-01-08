@@ -5,8 +5,7 @@ import { getDocs, query, collection, getFirestore, Timestamp, where, orderBy, do
 import Post from "../components/Post";
 import useFirebaseAuth from "../hooks/use-auth";
 import { useEffect } from "react";
-
-const db = getFirestore();
+import { db } from "../config/firebase";
 
 export async function getServerSideProps(context) {
   const { keyword, location, sort } = context.query;

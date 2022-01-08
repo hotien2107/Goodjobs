@@ -9,8 +9,8 @@ import Header from "../../components/layout/Header";
 import SearchBar from "../../components/SearchBar";
 import useFirebaseAuth from "../../hooks/use-auth";
 import Footer from "../../components/layout/Footer";
-
-const db = getFirestore();
+import { useRouter } from "next/router";
+import { db } from "../../config/firebase";
 
 function FavoritePosts() {
   const auth = useFirebaseAuth();
@@ -18,6 +18,7 @@ function FavoritePosts() {
   const [HRs, setHRs] = useState({});
   const [toggle, setToggle] = useState(false);
   const { authUser, loading } = auth;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFavoritePosts = async () => {
@@ -51,7 +52,7 @@ function FavoritePosts() {
   }, [setFavorites, db, toggle, authUser]);
 
   async function removeFavorite(post_id) {
-    const queryObj = await query(collection(db, "favorites"), where("user_id", "==", user_id), where("post_id", "==", post_id));
+    const queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id), where("post_id", "==", post_id));
     const dataSnapshot = await getDocs(queryObj);
     dataSnapshot.forEach(async (_doc) => {
       await deleteDoc(doc(db, "favorites", _doc.id));
@@ -76,7 +77,9 @@ function FavoritePosts() {
                     <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/svg/logo.svg"} alt="profile image" />
                   </div>
                   <div className="ml-6">
-                    <div className="font-semibold text-xl">{post.title}</div>
+                    <div onClick={() => router.push(`/posts/${post.id}`)} className="font-semibold text-xl cursor-pointer">
+                      {post.title}
+                    </div>
                     <div className="text-purple-900 font-bold mt-2">{HRs[post.hr_id]?.fullName}</div>
                     <div className="text-gray-500 italic mt-2">Hạn ứng tuyển: {format(new Date(post.expiredTime), "dd MMMM yyyy", { locale: vi })}</div>
                   </div>

@@ -3,9 +3,11 @@ import vi from "date-fns/locale/vi";
 import { useEffect, useState } from "react";
 import { collection, documentId, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { useRouter } from "next/router";
 
 function CategoriesNews({ icon, posts, title }) {
   const [HRs, setHRs] = useState({});
+  const router = useRouter();
 
   useEffect(() => {
     const fetchHR = async () => {
@@ -30,7 +32,7 @@ function CategoriesNews({ icon, posts, title }) {
 
       <div>
         {posts.map((post) => (
-          <div key={post.id} className="px-2 py-3 border-b-[0.5px] last:border-none">
+          <div onClick={() => router.push(`/posts/${post.id}`)} key={post.id} className="px-2 py-3 border-b-[0.5px] last:border-none cursor-pointer">
             <div className="flex justify-start items-center">
               <div className="w-1/6 rounded-full">
                 <img src={HRs[post.hr_id]?.avatar?.length ? HRs[post.hr_id]?.avatar : "/svg/logo.svg"} alt="profile image" />

@@ -4,9 +4,11 @@ import vi from "date-fns/locale/vi";
 import { useEffect, useState } from "react";
 import { collection, documentId, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { useRouter } from "next/router";
 
 function LastestNews({ posts }) {
   const [HRs, setHRs] = useState({});
+  const router = useRouter();
 
   useEffect(() => {
     const fetchHR = async () => {
@@ -38,7 +40,11 @@ function LastestNews({ posts }) {
 
       <div className="py-5 px-4 grid grid-cols-2 gap-x-10">
         {posts.map((post) => (
-          <div key={post.id} className="w-full min-h-[120px] shadow-[0_0_5px_2px_rgba(0,0,0,0.1)] rounded-lg pt-5 mb-6">
+          <div
+            onClick={() => router.push(`/posts/${post.id}`)}
+            key={post.id}
+            className="w-full min-h-[120px] shadow-[0_0_5px_2px_rgba(0,0,0,0.1)] rounded-lg pt-5 mb-6 cursor-pointer"
+          >
             <div className="flex justify-center">
               <div>
                 <div className="w-full h-64 relative overflow-hidden">
