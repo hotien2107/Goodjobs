@@ -1,15 +1,21 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Footer from "../../../components/layout/Footer";
 import Header from "../../../components/layout/Header";
 import SearchBar from "../../../components/SearchBar";
 import generateKeywords from "../../../helpers/generatekeywords";
-import { addDoc, collection, getFirestore, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getFirestore, setDoc, Timestamp } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../../context/auth-context";
+import { useRouter } from "next/router";
 
 const db = getFirestore();
 
 export default function CreatePost() {
+  const auth = useAuth();
+  const { authUser, loading } = auth;
+  const router = useRouter();
+
   const titleRef = useRef();
   const jobDesRef = useRef();
   const requireRef = useRef();
@@ -22,12 +28,41 @@ export default function CreatePost() {
   const expiredTimeRef = useRef();
 
   async function createPost() {
-    const newPost = validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef);
+    const newPost = validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef, authUser?.id);
     if (newPost) {
-      const docRef = await addDoc(collection(db, "posts"), newPost);
+      const docRef = doc(collection(db, "posts"));
+      await setDoc(docRef, { ...newPost, id: docRef.id });
       toast.success("Tạo bản tin tuyển dụng thành công");
+      router.push("/");
     }
   }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col justify-between bg-gray-100">
+        <div>
+          <Header />
+          <SearchBar />
+        </div>
+        <div className="w-full flex justify-center text-9xl text-purple-900">
+          <svg className="animate-spin" width="1em" height="1em" viewBox="0 0 1024 1024">
+            <path
+              d="M955 768q-20 34-58 44.5t-72.5-9.5t-45-58.5T789 672q61-106 68-226.5T817.5 216T680 29q47 16 88 40q90 52 152 134.5t87 176t12.5 196T955 768zM768 955q-90 52-192.5 64.5t-196-12.5t-176-87T69 768q-20-34-10-72.5t44.5-58.5t73-9.5T235 672q46 80 116 138t151 86.5t170.5 31T846 899q-37 33-78 56zM512 192q-123 0-230.5 54.5T103 395.5T9 608q-9-49-9-96q0-104 40.5-199t109-163.5T313 40.5T512 0q40 0 68 28t28 68t-28 68t-68 28z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!authUser || (authUser && authUser.role != 2)) {
+    //router.replace("/auth/login");
+  }
+
+  // console.log("Auth user:" + authUser + ", loading:" + loading);
+  console.log(auth);
 
   return (
     <div>
@@ -48,7 +83,7 @@ export default function CreatePost() {
               <InputTextArea value={"Yêu cầu"} placeholder={"Những kỹ năng yêu cầu cho công việc "} refInstance={requireRef} height={"h-48"} />
               <InputText value={"Mức lương"} placeholder={"Mức lương của công việc"} refInstance={salaryRef} format={"number"} />
               <InputText value={"Số lượng"} placeholder={"Số lượng tuyển dụng"} refInstance={quantityRef} format={"number"} />
-              <InputText value={"Kinh nghiệm"} placeholder={"Kinh nghiệm làm việc yêu cầu"} refInstance={expRef} format={"number"} />
+              <InputText value={"Số năm kinh nghiệm"} placeholder={"Kinh nghiệm làm việc yêu cầu"} refInstance={expRef} format={"number"} />
 
               <div className="w-full lg:flex justify-end items-center mt-4">
                 <div className="mr-4 font-medium">Địa điểm</div>
@@ -122,7 +157,7 @@ function InputTextArea({ value, placeholder, refInstance, height }) {
   );
 }
 
-export function validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef) {
+export function validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef, hr_id) {
   if (
     !titleRef.current.value ||
     !jobDesRef.current.value ||
@@ -153,7 +188,7 @@ export function validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantit
     return;
   }
 
-  console.log(typeof expiredTimeRef.current.value);
+  if (!hr_id) return;
 
   const newPost = {
     title: titleRef.current.value,
@@ -168,6 +203,8 @@ export function validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantit
     createTime: Timestamp.fromDate(new Date(Date.now())),
     expiredTime: Timestamp.fromDate(new Date(expiredTimeRef.current.value)),
     keywords: generateKeywords(titleRef.current.value),
+    hr_id: hr_id,
+    isHide: false,
   };
 
   return newPost;
