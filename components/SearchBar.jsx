@@ -29,46 +29,44 @@ function SearchBar({ keyword }) {
   };
 
   return (
-    <div className="w-full flex justify-center content-center py-4 my-6">
-      <div className="w-4/5 flex justify-between max-w-screen-xl">
-        <div className="w-4/5 flex">
-          <input
-            ref={keywordRef}
-            type="text"
-            defaultValue={keyword}
-            className="w-1/2 border-2 px-4 py-1 mr-4 rounded-md focus:outline-purple-500 caret-purple-500"
-            placeholder="Tìm kiếm bản tin tuyển dụng..."
-          />
+    <div className="w-full flex justify-center content-center py-6 border-b-[0.5px] bg-white">
+      <div className="w-4/5 flex justify-start max-w-screen-xl">
+        <input
+          ref={keywordRef}
+          type="text"
+          defaultValue={keyword}
+          className="w-1/2 border-[0.5px] px-4 py-1 mr-4 rounded-md focus:outline-purple-500 caret-purple-500"
+          placeholder="Tìm kiếm bản tin tuyển dụng..."
+        />
 
-          <div className="flex items-center mr-4">
-            <select
-              ref={locationRef}
-              name="location"
-              id="location"
-              className="px-4 py-1 rounded border border-gray-400 focus:border-purple-500 active:border-purple-500 focus-visible:outline-none"
-            >
-              <option value="">Địa điểm</option>
-              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="Đà Nẵng">Đà Nẵng</option>
-            </select>
-          </div>
-
-          <div className="flex items-center">
-            <select
-              ref={sortRef}
-              name="location"
-              id="location"
-              className="px-4 py-1 rounded border border-gray-400 focus:border-purple-500 active:border-purple-500 focus-visible:outline-none"
-            >
-              <option value="">Mức lương</option>
-              <option value="asc">Tăng dần</option>
-              <option value="desc">Giảm dần</option>
-            </select>
-          </div>
+        <div className="flex items-center mr-4">
+          <select
+            ref={locationRef}
+            name="location"
+            id="location"
+            className="px-4 py-1 rounded border-[0.5px] focus:border-purple-500 active:border-purple-500 focus-visible:outline-none"
+          >
+            <option value="">Địa điểm</option>
+            <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+            <option value="Hà Nội">Hà Nội</option>
+            <option value="Đà Nẵng">Đà Nẵng</option>
+          </select>
         </div>
 
-        <button onClick={handleSearch} className="flex justify-center items-center bg-purple-900 px-4 rounded-lg">
+        <div className="flex items-center">
+          <select
+            ref={sortRef}
+            name="location"
+            id="location"
+            className="px-4 py-1 rounded border-[0.5px] focus:border-purple-500 active:border-purple-500 focus-visible:outline-none"
+          >
+            <option value="">Mức lương</option>
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+          </select>
+        </div>
+
+        <button onClick={handleSearch} className="flex justify-center items-center bg-purple-900 px-4 ml-6 rounded-lg">
           <div className="text-white">
             <svg width="1em" height="1em" viewBox="0 0 24 24">
               <g className="icon-tabler" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
