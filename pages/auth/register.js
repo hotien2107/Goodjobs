@@ -7,6 +7,7 @@ const register = () => {
   const [emailEntered, setEmailEntered] = useState('');
   const [passwordEntered, setPasswordEntered] = useState('');
   const [fullnameEntered, setFullnameEntered] = useState('');
+  const [roleEntered, setRoleEntered] = useState('');
 
   const router = useRouter();
 
@@ -18,7 +19,7 @@ const register = () => {
       router.push('/auth/login');
     };
 
-    signUp(signUpSuccess, emailEntered, passwordEntered, fullnameEntered);
+    signUp(signUpSuccess, emailEntered, passwordEntered, fullnameEntered, roleEntered);
   };
 
   return (
@@ -224,6 +225,22 @@ const register = () => {
                       value={passwordEntered}
                       onChange={(e) => setPasswordEntered(e.target.value)}
                     />
+                  </div>
+                </div>
+              </div>
+              <div className='flex -mx-3'>
+                <div className='w-full px-3 mb-5'>
+                  <label className='px-1 text-xs font-semibold'>Chọn vai trò</label>
+                  <div className='flex'>
+                    <div className='z-10 flex items-center justify-center w-10 pl-1 text-center pointer-events-none'>
+                      <i className='text-lg text-gray-400 mdi mdi-email-outline'></i>
+                    </div>
+                    <div>
+                      <input type="radio" name="role" value={roleEntered} className='align-middle' onChange={(e) => setRoleEntered(2)}/>
+                      <label for="hr" className='align-middle'>HR</label>
+                      <input type="radio" name="role" value={roleEntered} className='ml-20 align-middle' onChange={(e) => setRoleEntered(1)}/>
+                      <label for="candidate" className='align-middle'>Candidate</label><br></br>
+                  </div>
                   </div>
                 </div>
               </div>

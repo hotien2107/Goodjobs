@@ -81,7 +81,7 @@ export default function useFirebaseAuth() {
   };
 
   // sign up with email and password
-  const signUpWithEmailAndPassword = async (signUpSuccess, email, password, fullName) => {
+  const signUpWithEmailAndPassword = async (signUpSuccess, email, password, fullName, roleRegister) => {
     try {
       const signUpRef = await createUserWithEmailAndPassword(auth, email, password);
 
