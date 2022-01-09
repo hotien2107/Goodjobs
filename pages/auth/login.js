@@ -38,7 +38,7 @@ const Login = () => {
               <input
                 type="email"
                 placeholder="Email"
-                className="mt-1 block px-2 w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                className="mt-1 block px-2 focus:outline-none w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
                 value={emailEntered}
                 onChange={(e) => setEmailEntered(e.target.value)}
               />
@@ -48,7 +48,7 @@ const Login = () => {
               <input
                 type="password"
                 placeholder="Mật khẩu"
-                className="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
+                className="mt-1 px-2 block focus:outline-none w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg hover:bg-blue-100 focus:bg-blue-100 focus:ring-0"
                 value={passwordEntered}
                 onChange={(e) => setPasswordEntered(e.target.value)}
               />
@@ -104,7 +104,7 @@ const Login = () => {
               <div className="flex justify-center items-center">
                 <label className="mr-2">Bạn là người mới?</label>
                 <Link href={"/auth/register"}>
-                  <div className="text-blue-700">Tạo một tài khoản</div>
+                  <div className="text-blue-700 cursor-pointer">Tạo một tài khoản</div>
                 </Link>
               </div>
             </div>
