@@ -12,13 +12,16 @@ function LastestNews({ posts }) {
 
   useEffect(() => {
     const fetchHR = async () => {
-      const listHRId = posts?.map((post) => post.hr_id) || [];
-      const q = await query(collection(db, "users"), where("id", "in", listHRId));
-      const dataSnapshot = await getDocs(q);
-      const _listHR = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
-      _listHR.forEach((hr) => {
-        setHRs({ ...HRs, [hr.id]: hr });
-      });
+      let listHRId = posts?.map((post) => post.hr_id) || [];
+      if (listHRId.length > 0) {
+        console.log("listHRId", listHRId);
+        const q = await query(collection(db, "users"), where("id", "in", listHRId));
+        const dataSnapshot = await getDocs(q);
+        const _listHR = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
+        _listHR.forEach((hr) => {
+          setHRs({ ...HRs, [hr.id]: hr });
+        });
+      }
     };
 
     fetchHR();
