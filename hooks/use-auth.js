@@ -72,7 +72,7 @@ export default function useFirebaseAuth() {
   };
 
   // sign up with email and password
-  const signUpWithEmailAndPassword = async (signUpSuccess, email, password, fullName) => {
+  const signUpWithEmailAndPassword = async (signUpSuccess, email, password, fullName, roleRegister) => {
     try {
       const signUpRef = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -82,10 +82,15 @@ export default function useFirebaseAuth() {
 
       if (users.findIndex((userId) => userId.uid === signUpRef.user.uid) < 0) {
         await addDoc(collection(db, 'users'), {
-          uid: signUpRef.user.uid,
-          displayName: fullName,
+          id: signUpRef.user.uid,
+          email: email,
+          fullName: fullName,
+          avatar: "https://www.seekpng.com/png/detail/73-730482_existing-user-default-avatar.png",
+          DOB: 0,
+          role: roleRegister,
+          isDelete: false,
+          phoneNumber: "",
           photoURL: signUpRef.user.photoURL,
-          role: 1,
         });
       }
 
