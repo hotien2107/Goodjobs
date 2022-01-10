@@ -1,8 +1,8 @@
-import Head from 'next/head';
-import React from 'react';
-import ChatBox from '../../../components/chat-box';
-import ChatList from '../../../components/chat-list';
-import Header from '../../../components/layout/Header';
+import Head from "next/head";
+import React from "react";
+import ChatBox from "../../../components/chat-box";
+import ChatList from "../../../components/chat-list";
+import Header from "../../../components/layout/Header";
 
 const Chat = () => {
   return (
@@ -15,14 +15,15 @@ const Chat = () => {
 
       <main className='h-screen'>
         <Header />
+        <div className='w-full flex justify-center mb-6 h-4/5'>
+          <div className='w-4/5 content-center max-w-screen-xl flex'>
+            <div className='basis-1/3'>
+              <ChatList />
+            </div>
 
-        <div className='flex h-4/5'>
-          <div className='basis-1/3'>
-            <ChatList />
-          </div>
-
-          <div className='basis-2/3'>
-            <ChatBox />
+            <div className='basis-2/3'>
+              <ChatBox />
+            </div>
           </div>
         </div>
       </main>

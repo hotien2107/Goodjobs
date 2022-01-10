@@ -1,12 +1,12 @@
-import { addDoc, collection, doc, limit, onSnapshot, orderBy, query, setDoc } from '@firebase/firestore';
-import React, { useEffect, useRef, useState } from 'react';
-import { db } from '../../config/firebase';
-import useFirebaseAuth from '../../hooks/use-auth';
-import { FaPaperPlane } from 'react-icons/fa';
-import { useRouter } from 'next/router';
+import { addDoc, collection, doc, limit, onSnapshot, orderBy, query, setDoc } from "@firebase/firestore";
+import React, { useEffect, useRef, useState } from "react";
+import { db } from "../../config/firebase";
+import useFirebaseAuth from "../../hooks/use-auth";
+import { FaPaperPlane } from "react-icons/fa";
+import { useRouter } from "next/router";
 
 const ChatBox = () => {
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const dummySpace = useRef();
   const router = useRouter();
@@ -19,16 +19,17 @@ const ChatBox = () => {
 
   useEffect(() => {
     const getMessages = async () => {
-      const messagesRef = collection(db, 'chats', `${roomChat}`, 'messages');
-      const q = query(messagesRef, orderBy('createdAt'), limit(50));
+      const messagesRef = collection(db, "chats", `${roomChat}`, "messages");
+      const q = query(messagesRef, orderBy("createdAt"), limit(50));
 
-      onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
         }));
 
         setMessages(data);
       });
+
     };
 
     getMessages();
@@ -37,30 +38,32 @@ const ChatBox = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const addMess = async () => {
-      await setDoc(doc(db, 'chats', `${roomChat}`), {
-        participants: [authUser.id, receiverId],
-      });
+      if (authUser.id && receiverId) {
+        await setDoc(doc(db, "chats", `${roomChat}`), {
+          participants: [authUser.id, receiverId],
+        });
 
-      await addDoc(collection(db, 'chats', `${roomChat}`, 'messages'), {
-        text: newMessage,
-        createdAt: Date.now(),
-        participants: [authUser.id, receiverId],
-        id: authUser.id,
-        fullName: authUser.fullName,
-        avatar: authUser.avatar,
-      });
+        await addDoc(collection(db, "chats", `${roomChat}`, "messages"), {
+          text: newMessage,
+          createdAt: Date.now(),
+          participants: [authUser.id, receiverId],
+          id: authUser.id,
+          fullName: authUser.fullName,
+          avatar: authUser.avatar,
+        });
 
-      setNewMessage('');
+        setNewMessage("");
 
-      // scroll down the chat
-      dummySpace.current.scrollIntoView({ behavor: 'smooth' });
+        // scroll down the chat
+        dummySpace.current.scrollIntoView({ behavor: "smooth" });
+      }
     };
 
     addMess();
   };
 
   return (
-    <div className='w-96 h-full shadow-lg bg-slate-100 relative rounded-lg mt-4'>
+    <div className='w-full h-full shadow-lg bg-slate-100 relative rounded-lg mt-4'>
       <div className='w-full h-full overflow-y-scroll'>
         <ul className='w-full flex flex-col'>
           {messages.length > 0
@@ -68,14 +71,19 @@ const ChatBox = () => {
                 return (
                   <li
                     key={key}
-                    className={'mb-4 ' + (message.id === authUser?.id ? 'max-w-xs self-end text-right ' : 'max-w-xs self-start text-left ')}
+                    className={
+                      "mb-4 " +
+                      (message.id === authUser?.id ? "max-w-xs self-end text-right " : "max-w-xs self-start text-left ")
+                    }
                   >
-                    <section className={'flex  ' + (message.id === authUser?.id ? '' : 'flex-row-reverse')}>
+                    <section className={"flex  " + (message.id === authUser?.id ? "" : "flex-row-reverse")}>
                       {/* display message text */}
                       <p
                         className={
-                          'mr-4 ' +
-                          (message.id === authUser?.id ? 'bg-purple-600 p-2 rounded-lg text-white' : 'bg-white p-2 rounded-lg text-purple-900 ml-4')
+                          "mr-4 " +
+                          (message.id === authUser?.id
+                            ? "bg-purple-600 p-2 rounded-lg text-white"
+                            : "bg-white p-2 rounded-lg text-purple-900 ml-4")
                         }
                       >
                         {message.text}
@@ -85,7 +93,9 @@ const ChatBox = () => {
                       {message.avatar ? (
                         <img src={message.avatar} alt='' className='w-8 h-8 rounded-full' />
                       ) : (
-                        <div className='w-8 h-8 rounded-full bg-purple-600 text-white flex justify-center items-center'>{message.fullName[0]}</div>
+                        <div className='w-8 h-8 rounded-full bg-purple-600 text-white flex justify-center items-center'>
+                          {message.fullName ? message.fullName[0] : ""}
+                        </div>
                       )}
                     </section>
                   </li>
