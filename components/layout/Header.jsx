@@ -27,8 +27,12 @@ function Header() {
           <Link href='/'>
             <div className='font-bold text-purple-900 underline underline-offset-4 cursor-pointer'>Trang chủ</div>
           </Link>
-          <div>Mẹo tuyển dụng</div>
-          <div>Template CV</div>
+          <Link href='/list-tips'>
+            <div className="cursor-pointer">Mẹo tuyển dụng</div>
+          </Link>
+          <Link href='/template-cv'>
+            <div className="cursor-pointer">Template CV</div>
+          </Link>
         </div>
 
         {!authUser ? (
