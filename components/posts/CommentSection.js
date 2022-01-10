@@ -4,6 +4,8 @@ import {db} from "../../config/firebase";
 import useFirebaseAuth from "../../hooks/use-auth";
 import {format} from "date-fns";
 import {vi} from "date-fns/locale";
+import {toast, ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CommentSection = ({postId}) => {
     const [comments, setComments] = useState([]);
@@ -47,22 +49,27 @@ const CommentSection = ({postId}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const addComment = async () => {
-            await addDoc(collection(db, "comments"), {
-                user_id: authUser.id,
-                post_id: postId,
-                comment: userComment,
-                createdAt: new Date()
+        if (authUser) {
+            const addComment = async () => {
+                await addDoc(collection(db, "comments"), {
+                    user_id: authUser.id,
+                    post_id: postId,
+                    comment: userComment,
+                    createdAt: new Date()
+                });
+            }
+            addComment();
+        } else {
+            toast.error("Bạn phải đăng nhập để bình luận", {
+                position: toast.POSITION.TOP_RIGHT,
             });
-
-            setUserComment("");
         }
-
-        addComment();
+        setUserComment("");
     }
 
     return (
         <div>
+            <ToastContainer limit={1} autoClose={3000} />
             <section className="pl-2 py-2">
                 {comments.length === 0 ? <p>Leave first comment here</p> : comments.map((comment) => (
                     <div className="flex items-center gap-2 mb-4" key={comment.id}>

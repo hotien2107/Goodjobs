@@ -32,7 +32,7 @@ export default function Post({ post, HRs }) {
 
   const changeFavorite = async () => {
     if (authUser) {
-      if (authUser.role && authUser.role == 1) {
+      if (authUser.role && authUser.role === 1) {
         if (favoriteIds.includes(post.id)) {
           const queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id), where("post_id", "==", post.id));
           const dataSnapshot = await getDocs(queryObj);

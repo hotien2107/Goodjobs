@@ -12,7 +12,8 @@ import { nanoid } from "nanoid/async";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addDoc } from "@firebase/firestore";
-import { AiFillFileZip, AiOutlineHeart } from "react-icons/ai";
+import {AiFillFileZip, AiFillHeart, AiOutlineHeart} from "react-icons/ai";
+import {deleteDoc, setDoc} from "firebase/firestore";
 
 const postDataTemplate = {
   id: "",
@@ -29,18 +30,16 @@ const PostDetail = () => {
   const router = useRouter();
   const [postId, setPostId] = useState("");
   const [postData, setPostData] = useState(postDataTemplate);
-  const [commentActive, setCommentActive] = useState(true);
+  // const [commentActive, setCommentActive] = useState(true);
   const [applyFormVisible, setApplyFormVisible] = useState(false);
   const [uploadedCV, setUploadedCV] = useState(null);
   const [cvSubmitDisable, setCVSubmitDisable] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const auth = useFirebaseAuth();
   const { authUser } = auth;
 
   useEffect(() => {
-    console.log(uploadedCV);
-  }, [uploadedCV]);
-
-  useEffect(async () => {
     const getPost = async () => {
       if (!router.isReady) return;
       const { postId } = router.query;
@@ -58,9 +57,9 @@ const PostDetail = () => {
           const data = {
             id: postId,
             ...docSnap.data(),
-            requirement: docSnap.data().requirement.split("\n"),
-            job_description: docSnap.data().job_description.split("\n"),
-            benefit: docSnap.data().benefit.split("\n"),
+            requirement: docSnap.data().requirement.replace(/\s+/g, ' ').trim().split("-"),
+            job_description: docSnap.data().job_description.replace(/\s+/g, ' ').trim().split("-"),
+            benefit: docSnap.data().benefit.replace(/\s+/g, ' ').trim().split("-"),
             createTime: docSnap.data().createTime.toDate().toString(),
             expiredTime: docSnap.data().expiredTime.toDate().toString(),
             hr_info: userInfo,
@@ -73,16 +72,31 @@ const PostDetail = () => {
       });
     };
 
-    await getPost();
+    getPost();
   }, [router.isReady]);
 
-  const handleRateClick = () => {
-    setCommentActive(false);
-  };
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id));
+      const dataSnapshot = await getDocs(queryObj);
+      let fav = [];
+      fav = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
+      const favorite_ids = fav.map((fav) => fav.post_id);
+      setFavoriteIds(favorite_ids);
+      setIsFavorite(favorite_ids.includes(postId));
+    };
+    if (authUser) {
+      fetchFavorites();
+    }
+  }, [authUser])
 
-  const handleCommentClick = () => {
-    setCommentActive(true);
-  };
+  // const handleRateClick = () => {
+  //   setCommentActive(false);
+  // };
+  //
+  // const handleCommentClick = () => {
+  //   setCommentActive(true);
+  // };
 
   const handleApplyClick = () => {
     setApplyFormVisible(true);
@@ -96,7 +110,7 @@ const PostDetail = () => {
     setCVSubmitDisable(true);
     if (uploadedCV === null) {
       toast.error("Bạn đang để trống CV", {
-        position: toast.POSITION.TOP_CENTER,
+        position: toast.POSITION.TOP_RIGHT,
       });
     } else {
       const randomId = await nanoid();
@@ -104,7 +118,7 @@ const PostDetail = () => {
       const cvRef = ref(storage, `CV/${fileName}`);
 
       toast.loading("CV đang được tải lên", {
-        position: toast.POSITION.TOP_CENTER,
+        position: toast.POSITION.TOP_RIGHT,
         autoClose: false,
         toastId: "loadingCV",
       });
@@ -118,19 +132,39 @@ const PostDetail = () => {
           setCVSubmitDisable(false);
           toast.dismiss("loadingCV");
           toast.success("Đã nộp CV thành công", {
-            position: toast.POSITION.TOP_CENTER,
+            position: toast.POSITION.TOP_RIGHT,
           });
         });
       });
     }
   };
 
-  const ratingSection = (
-    <div className="text-center">
-      <p>In construction</p>
-      <p>...</p>
-    </div>
-  );
+  const handleFavoriteClick = async () => {
+    if (authUser) {
+      if (authUser.role && authUser.role === 1) {
+        if (favoriteIds.includes(postId)) {
+          const queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id), where("post_id", "==", postId));
+          const dataSnapshot = await getDocs(queryObj);
+          dataSnapshot.forEach(async (_doc) => {
+            await deleteDoc(doc(db, "favorites", _doc.id));
+          });
+          toast.success("Xóa tin khỏi danh sách đã lưu");
+        } else {
+          const docRef = doc(collection(db, "favorites"));
+          await setDoc(docRef, {
+            id: docRef.id,
+            user_id: authUser.id,
+            post_id: postId,
+            note: "",
+          });
+          toast.success("Lưu tin vào danh sách yêu thích");
+        }
+        setIsFavorite(!isFavorite);
+      } else {
+        toast.error("Bạn không có quyền thực hiện chức năng này!");
+      }
+    }
+  };
 
   return (
     <>
@@ -144,7 +178,10 @@ const PostDetail = () => {
               <b>Vị trí:</b> {postData.level}
             </p>
             <p>
-              <b>Số lượng:</b> {postData.quantity}
+              <b>Vị trí:</b> {postData.level}
+            </p>
+            <p>
+              <b>Số lượng tuyển:</b> {postData.quantity}
             </p>
             <p>
               <b>Thời hạn:</b> {format(new Date(postData.expiredTime), "dd MMMM yyyy", { locale: vi })}
@@ -159,13 +196,21 @@ const PostDetail = () => {
             </section>
           </div>
           <div className="flex flex-col justify-end gap-4">
-            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
+            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleApplyClick}>
               <AiFillFileZip />
               <span className="text-sm font-semibold ml-3">Ứng tuyển</span>
             </div>
-            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
-              <AiOutlineHeart />
-              <span className="text-sm font-semibold ml-3">Thêm yêu thích</span>
+            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleFavoriteClick}>
+              {isFavorite ? (
+                  <>
+                    <AiFillHeart />
+                    <span className="text-sm font-semibold ml-3">Xóa yêu thích</span>
+                  </>) : (
+                  <>
+                    <AiOutlineHeart/>
+                    <span className="text-sm font-semibold ml-3">Thêm yêu thích</span>
+                  </>
+              )}
             </div>
           </div>
         </div>
@@ -173,44 +218,43 @@ const PostDetail = () => {
           <h1 className="font-bold">Mô tả công việc</h1>
           <ul className="list-disc pl-8">
             {postData.job_description.map((descriptionLine, index) => (
-              <li key={index}>{descriptionLine}</li>
+                index !== 0 ? <li key={index}>{descriptionLine}</li> : null
             ))}
           </ul>
           <h1 className="font-bold">Yêu cầu công việc</h1>
           <ul className="list-disc pl-8">
             {postData.requirement.map((requirementLine, index) => (
-              <li key={index}>{requirementLine}</li>
+                index !== 0 ? <li key={index}>{requirementLine}</li> : null
             ))}
           </ul>
-          <h1 className="font-bold">Mức lương</h1>
-          <p className="pl-8">{postData.salary.toLocaleString()} VNĐ</p>
           <h1 className="font-bold">Quyền lợi</h1>
           <ul className="list-disc pl-8">
             {postData.benefit.map((benefitLine, index) => (
-              <li key={index}>{benefitLine}</li>
+                index !== 0 ? <li key={index}>{benefitLine}</li> : null
             ))}
           </ul>
         </div>
         <div className="bg-white drop-shadow-lg rounded-lg w-4/5 mb-8 overflow-hidden">
-          <ul className="flex h-8">
-            <li
-              className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-r ${
-                commentActive ? "text-indigo-500" : "bg-gray-200"
-              }`}
-              onClick={handleCommentClick}
-            >
-              Bình luận
-            </li>
-            <li
-              className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-l ${
-                commentActive ? "bg-gray-200" : "text-indigo-500"
-              }`}
-              onClick={handleRateClick}
-            >
-              Đánh giá
-            </li>
-          </ul>
-          {commentActive ? <CommentSection postId={postId} /> : ratingSection}
+          {/*<ul className="flex h-8">*/}
+          {/*  <li*/}
+          {/*    className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-r ${*/}
+          {/*      commentActive ? "text-indigo-500" : "bg-gray-200"*/}
+          {/*    }`}*/}
+          {/*    onClick={handleCommentClick}*/}
+          {/*  >*/}
+          {/*    Bình luận*/}
+          {/*  </li>*/}
+          {/*  <li*/}
+          {/*    className={`w-full flex items-center justify-center hover:text-indigo-500 font-semibold border-l ${*/}
+          {/*      commentActive ? "bg-gray-200" : "text-indigo-500"*/}
+          {/*    }`}*/}
+          {/*    onClick={handleRateClick}*/}
+          {/*  >*/}
+          {/*    Đánh giá*/}
+          {/*  </li>*/}
+          {/*</ul>*/}
+          <div className="h-12 flex items-center pl-4 font-semibold text-xl border-b-2">Bình luận</div>
+          <CommentSection postId={postId} />
         </div>
       </section>
       <Modal open={applyFormVisible} onClose={handleApplyFormClose}>
