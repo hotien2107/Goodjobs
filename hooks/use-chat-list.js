@@ -19,6 +19,7 @@ const useChatList = () => {
             return data === authUser?.id;
           })
         ) {
+          console.log(doc.data());
           if (
             list.findIndex((item) => {
               return item === doc.data();
@@ -37,7 +38,6 @@ const useChatList = () => {
       if (authUser) return item.participants.find((user) => user !== authUser.id);
       return [];
     });
-
     userList.map((user) => {
       const userRef = collection(db, 'users');
       const q = query(userRef, where('id', '==', user));
@@ -46,9 +46,8 @@ const useChatList = () => {
         const data = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
         }));
-
         setChatList((list) => {
-          if (list.findIndex((user) => user.id === data.id) < 0) {
+          if (list.findIndex((user) => user.id === data[0]?.id) < 0) {
             return [...list, ...data];
           } else {
             return list;

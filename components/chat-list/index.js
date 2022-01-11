@@ -8,12 +8,12 @@ const ChatList = () => {
   const { chatList } = useChatList();
 
   return (
-    <ul>
+    <ul className="px-2">
       {chatList.map((user) => {
         return (
           <li
             key={user.id}
-            className='flex cursor-pointer'
+            className={`flex cursor-pointer ${router.query.receiverId === user.id ? "bg-slate-200" : ""}`}
             onClick={() => {
               router.push(`/chat/${user.id}`);
             }}
