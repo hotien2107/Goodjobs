@@ -15,9 +15,12 @@ function CategoriesNews({ icon, posts, title }) {
       const q = await query(collection(db, "users"), where("id", "in", listHRId));
       const dataSnapshot = await getDocs(q);
       const _listHR = dataSnapshot.docs.map((doc) => ({ ...doc.data() }));
+      const objHRs = {};
       _listHR.forEach((hr) => {
-        setHRs({ ...HRs, [hr.id]: hr });
+        let id = hr.id;
+        objHRs = { ...objHRs, [id]: JSON.parse(JSON.stringify(hr)) };
       });
+      setHRs(objHRs);
     };
 
     fetchHR();
