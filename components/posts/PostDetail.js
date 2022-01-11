@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../config/firebase";
 import { useRouter } from "next/router";
+import Link from "next/link"
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import CommentSection from "./CommentSection";
 import { query, collection, getDocs, where, doc, getDoc, limit } from "@firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+import { ref, uploadBytes } from "@firebase/storage";
 import Modal from "../Modal";
 import useFirebaseAuth from "../../hooks/use-auth";
 import { nanoid } from "nanoid/async";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addDoc } from "@firebase/firestore";
+import { addDoc, deleteDoc, setDoc } from "@firebase/firestore";
 import {AiFillFileZip, AiFillHeart, AiOutlineHeart} from "react-icons/ai";
-import {deleteDoc, setDoc} from "firebase/firestore";
+import {FaComment} from "react-icons/fa";
 
 const postDataTemplate = {
   id: "",
@@ -57,9 +58,9 @@ const PostDetail = () => {
           const data = {
             id: postId,
             ...docSnap.data(),
-            requirement: docSnap.data().requirement.replace(/\s+/g, ' ').trim().split("-"),
-            job_description: docSnap.data().job_description.replace(/\s+/g, ' ').trim().split("-"),
-            benefit: docSnap.data().benefit.replace(/\s+/g, ' ').trim().split("-"),
+            requirement: docSnap.data().requirement.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
+            job_description: docSnap.data().job_description.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
+            benefit: docSnap.data().benefit.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
             createTime: docSnap.data().createTime.toDate().toString(),
             expiredTime: docSnap.data().expiredTime.toDate().toString(),
             hr_info: userInfo,
@@ -178,7 +179,7 @@ const PostDetail = () => {
               <b>Vị trí:</b> {postData.level}
             </p>
             <p>
-              <b>Vị trí:</b> {postData.level}
+              <b>Mức lương dự kiến:</b> {new Intl.NumberFormat('vi', {style: "currency", currency: "VND"}).format(postData.salary)}
             </p>
             <p>
               <b>Số lượng tuyển:</b> {postData.quantity}
@@ -200,6 +201,12 @@ const PostDetail = () => {
               <AiFillFileZip />
               <span className="text-sm font-semibold ml-3">Ứng tuyển</span>
             </div>
+            <Link href={`/chat/${postData.hr_info.id}`}>
+              <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
+                <FaComment />
+                <span className="text-sm font-semibold ml-3">Nhắn tin HR</span>
+              </div>
+            </Link>
             <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleFavoriteClick}>
               {isFavorite ? (
                   <>
@@ -218,19 +225,19 @@ const PostDetail = () => {
           <h1 className="font-bold">Mô tả công việc</h1>
           <ul className="list-disc pl-8">
             {postData.job_description.map((descriptionLine, index) => (
-                index !== 0 ? <li key={index}>{descriptionLine}</li> : null
+                descriptionLine !== "" ? <li key={index}>{descriptionLine}</li> : null
             ))}
           </ul>
           <h1 className="font-bold">Yêu cầu công việc</h1>
           <ul className="list-disc pl-8">
             {postData.requirement.map((requirementLine, index) => (
-                index !== 0 ? <li key={index}>{requirementLine}</li> : null
+                requirementLine !== "" ? <li key={index}>{requirementLine}</li> : null
             ))}
           </ul>
           <h1 className="font-bold">Quyền lợi</h1>
           <ul className="list-disc pl-8">
             {postData.benefit.map((benefitLine, index) => (
-                index !== 0 ? <li key={index}>{benefitLine}</li> : null
+                benefitLine !== "" ? <li key={index}>{benefitLine}</li> : null
             ))}
           </ul>
         </div>
