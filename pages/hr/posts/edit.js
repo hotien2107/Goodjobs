@@ -6,6 +6,7 @@ import { validatePost } from "./create";
 import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../../context/auth-context";
 
 const db = getFirestore();
 
@@ -40,6 +41,7 @@ export default function EditPost({ post }) {
   const locationRef = useRef();
   const benefitRef = useRef();
   const expiredTimeRef = useRef();
+  const { authUser } = useAuth();
 
   useEffect(() => {
     const expiredDate = new Date(post.expiredTime);
@@ -54,17 +56,16 @@ export default function EditPost({ post }) {
     expRef.current.value = post.experience;
     locationRef.current.value = post.location;
     benefitRef.current.value = post.benefit;
-    expiredTimeRef.current.value = `${year}-${month}-${day}`;
+    expiredTimeRef.current.value = new Date(Date.UTC(year, month, day)).toISOString().split("T")[0];
   }, [post]);
 
   async function editPost() {
-    const newPost = validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef);
+    console.log(authUser);
+    const newPost = validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantityRef, expRef, locationRef, benefitRef, expiredTimeRef, authUser?.id);
     if (newPost) {
       const docRef = doc(db, "posts", post.id);
       const docSnap = await updateDoc(docRef, newPost);
       toast.success("Bản chỉnh sửa đã được lưu lại");
-    } else {
-      toast.error("Chỉnh sửa thấy bại");
     }
   }
 

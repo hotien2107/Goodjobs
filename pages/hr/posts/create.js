@@ -188,6 +188,7 @@ export function validatePost(titleRef, jobDesRef, requireRef, salaryRef, quantit
     return;
   }
 
+  console.log(hr_id);
   if (!hr_id) return;
 
   const newPost = {
