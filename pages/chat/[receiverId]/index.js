@@ -13,9 +13,9 @@ const Chat = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='h-screen'>
+      <main className='h-screen bg-gray-100 '>
         <Header />
-        <div className='w-full flex justify-center mb-6 h-4/5'>
+        <div className='w-full flex justify-center mt-6 mb-6 h-4/5'>
           <div className='w-4/5 content-center max-w-screen-xl flex'>
             <div className='basis-1/3'>
               <ChatList />

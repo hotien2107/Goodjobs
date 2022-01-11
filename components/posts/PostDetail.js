@@ -143,7 +143,7 @@ const PostDetail = () => {
   const handleFavoriteClick = async () => {
     if (authUser) {
       if (authUser.role && authUser.role === 1) {
-        if (favoriteIds.includes(postId)) {
+        if (isFavorite) {
           const queryObj = await query(collection(db, "favorites"), where("user_id", "==", authUser.id), where("post_id", "==", postId));
           const dataSnapshot = await getDocs(queryObj);
           dataSnapshot.forEach(async (_doc) => {
