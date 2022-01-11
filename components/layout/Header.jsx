@@ -24,8 +24,6 @@ function Header() {
     currentPath = "cv";
   }
 
-  console.log(currentPath);
-
   const active = "font-bold text-purple-900 underline underline-offset-4";
 
   return (

@@ -29,7 +29,6 @@ const ChatBox = () => {
 
         setMessages(data);
       });
-
     };
 
     getMessages();
@@ -63,7 +62,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className='w-full h-full shadow-lg bg-slate-100 relative rounded-lg mt-4'>
+    <div className='w-full h-5/6 shadow-lg bg-slate-100 relative rounded-lg mt-4'>
       <div className='w-full h-full overflow-y-scroll'>
         <ul className='w-full flex flex-col'>
           {messages.length > 0
@@ -72,17 +71,16 @@ const ChatBox = () => {
                   <li
                     key={key}
                     className={
-                      "mb-4 " +
-                      (message.id === authUser?.id ? "max-w-xs self-end text-right " : "max-w-xs self-start text-left ")
+                      "mb-4 " + (message.id === authUser?.id ? "self-end text-right " : "self-start text-left ")
                     }
                   >
                     <section className={"flex  " + (message.id === authUser?.id ? "" : "flex-row-reverse")}>
                       {/* display message text */}
                       <p
                         className={
-                          "mr-4 " +
+                          "max-w-xs break-words text-left " +
                           (message.id === authUser?.id
-                            ? "bg-purple-600 p-2 rounded-lg text-white"
+                            ? "bg-purple-600 p-2 rounded-lg text-white mr-4"
                             : "bg-white p-2 rounded-lg text-purple-900 ml-4")
                         }
                       >
