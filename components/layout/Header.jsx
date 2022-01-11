@@ -14,6 +14,20 @@ function Header() {
   const { chatList } = useChatList();
   const { authUser, logout } = auth;
 
+  let currentPath = "";
+
+  if (router.pathname === "/") {
+    currentPath = "home";
+  } else if (router.pathname === "/list-tips") {
+    currentPath = "tips";
+  } else if (router.pathname === "/template-cv") {
+    currentPath = "cv";
+  }
+
+  console.log(currentPath);
+
+  const active = "font-bold text-purple-900 underline underline-offset-4";
+
   return (
     <div className='w-full flex justify-center content-center border-b-[0.5px] bg-white'>
       <div className='h-24 w-4/5 flex justify-between max-w-screen-xl relative'>
@@ -25,13 +39,13 @@ function Header() {
 
         <div className='flex items-center w-1/2 justify-around'>
           <Link href='/'>
-            <div className='font-bold text-purple-900 underline underline-offset-4 cursor-pointer'>Trang chủ</div>
+            <div className={"cursor-pointer " + (currentPath === "home" ? active : "")}>Trang chủ</div>
           </Link>
           <Link href='/list-tips'>
-            <div className="cursor-pointer">Mẹo tuyển dụng</div>
+            <div className={"cursor-pointer " + (currentPath === "tips" ? active : "")}>Mẹo tuyển dụng</div>
           </Link>
           <Link href='/template-cv'>
-            <div className="cursor-pointer">Template CV</div>
+            <div className={"cursor-pointer " + (currentPath === "cv" ? active : "")}>Template CV</div>
           </Link>
         </div>
 
@@ -78,7 +92,7 @@ function Header() {
                 </div>
               )}
             </div>
-            
+
             {/* user - start */}
             <div className='flex items-center'>
               <div className='cursor-pointer' onClick={() => setIsShowUserMenu(!isShowUserMenu)}>
