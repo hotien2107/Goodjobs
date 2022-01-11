@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../config/firebase";
 import { useRouter } from "next/router";
-import Link from "next/link"
+import Link from "next/link";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import CommentSection from "./CommentSection";
@@ -13,8 +13,9 @@ import { nanoid } from "nanoid/async";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addDoc, deleteDoc, setDoc } from "@firebase/firestore";
-import {AiFillFileZip, AiFillHeart, AiOutlineHeart} from "react-icons/ai";
-import {FaComment} from "react-icons/fa";
+import { AiFillFileZip, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { FaComment } from "react-icons/fa";
+import { FiEdit2 } from "react-icons/fi";
 
 const postDataTemplate = {
   id: "",
@@ -58,9 +59,21 @@ const PostDetail = () => {
           const data = {
             id: postId,
             ...docSnap.data(),
-            requirement: docSnap.data().requirement.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
-            job_description: docSnap.data().job_description.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
-            benefit: docSnap.data().benefit.replace(/\s+/g, ' ').trim().split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
+            requirement: docSnap
+              .data()
+              .requirement.replace(/\s+/g, " ")
+              .trim()
+              .split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
+            job_description: docSnap
+              .data()
+              .job_description.replace(/\s+/g, " ")
+              .trim()
+              .split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
+            benefit: docSnap
+              .data()
+              .benefit.replace(/\s+/g, " ")
+              .trim()
+              .split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\;)\s/gm),
             createTime: docSnap.data().createTime.toDate().toString(),
             expiredTime: docSnap.data().expiredTime.toDate().toString(),
             hr_info: userInfo,
@@ -89,7 +102,7 @@ const PostDetail = () => {
     if (authUser) {
       fetchFavorites();
     }
-  }, [authUser])
+  }, [authUser]);
 
   // const handleRateClick = () => {
   //   setCommentActive(false);
@@ -179,7 +192,7 @@ const PostDetail = () => {
               <b>Vị trí:</b> {postData.level}
             </p>
             <p>
-              <b>Mức lương dự kiến:</b> {new Intl.NumberFormat('vi', {style: "currency", currency: "VND"}).format(postData.salary)}
+              <b>Mức lương dự kiến:</b> {new Intl.NumberFormat("vi", { style: "currency", currency: "VND" }).format(postData.salary)}
             </p>
             <p>
               <b>Số lượng tuyển:</b> {postData.quantity}
@@ -197,49 +210,56 @@ const PostDetail = () => {
             </section>
           </div>
           <div className="flex flex-col justify-end gap-4">
-            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleApplyClick}>
-              <AiFillFileZip />
-              <span className="text-sm font-semibold ml-3">Ứng tuyển</span>
-            </div>
-            <Link href={`/chat/${postData.hr_info.id}`}>
-              <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
-                <FaComment />
-                <span className="text-sm font-semibold ml-3">Nhắn tin HR</span>
+            {authUser?.role == 1 ? (
+              <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleApplyClick}>
+                <AiFillFileZip />
+                <span className="text-sm font-semibold ml-3">Ứng tuyển</span>
               </div>
-            </Link>
-            <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleFavoriteClick}>
-              {isFavorite ? (
+            ) : null}
+            {authUser?.id == postData.hr_id ? (
+              <Link href={`/hr/posts/edit?ID=${postId}`}>
+                <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
+                  <FiEdit2 />
+                  <span className="text-sm font-semibold ml-3">Chỉnh sửa</span>
+                </div>
+              </Link>
+            ) : (
+              <Link href={`/chat/${postData.hr_info.id}`}>
+                <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer">
+                  <FaComment />
+                  <span className="text-sm font-semibold ml-3">Nhắn tin HR</span>
+                </div>
+              </Link>
+            )}
+
+            {authUser?.id == postData.hr_id || authUser?.role == 2 ? null : (
+              <div className="flex items-center text-2xl bg-purple-700 text-white px-3 py-2 rounded-lg cursor-pointer" onClick={handleFavoriteClick}>
+                {isFavorite ? (
                   <>
                     <AiFillHeart />
                     <span className="text-sm font-semibold ml-3">Xóa yêu thích</span>
-                  </>) : (
-                  <>
-                    <AiOutlineHeart/>
-                    <span className="text-sm font-semibold ml-3">Thêm yêu thích</span>
                   </>
-              )}
-            </div>
+                ) : (
+                  <>
+                    <AiOutlineHeart />
+                    <span className="text-sm font-semibold ml-3">Yêu thích</span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-white drop-shadow-lg rounded-lg w-4/5 mb-8 p-5">
           <h1 className="font-bold">Mô tả công việc</h1>
           <ul className="list-disc pl-8">
-            {postData.job_description.map((descriptionLine, index) => (
-                descriptionLine !== "" ? <li key={index}>{descriptionLine}</li> : null
-            ))}
+            {postData.job_description.map((descriptionLine, index) => (descriptionLine !== "" ? <li key={index}>{descriptionLine}</li> : null))}
           </ul>
           <h1 className="font-bold">Yêu cầu công việc</h1>
           <ul className="list-disc pl-8">
-            {postData.requirement.map((requirementLine, index) => (
-                requirementLine !== "" ? <li key={index}>{requirementLine}</li> : null
-            ))}
+            {postData.requirement.map((requirementLine, index) => (requirementLine !== "" ? <li key={index}>{requirementLine}</li> : null))}
           </ul>
           <h1 className="font-bold">Quyền lợi</h1>
-          <ul className="list-disc pl-8">
-            {postData.benefit.map((benefitLine, index) => (
-                benefitLine !== "" ? <li key={index}>{benefitLine}</li> : null
-            ))}
-          </ul>
+          <ul className="list-disc pl-8">{postData.benefit.map((benefitLine, index) => (benefitLine !== "" ? <li key={index}>{benefitLine}</li> : null))}</ul>
         </div>
         <div className="bg-white drop-shadow-lg rounded-lg w-4/5 mb-8 overflow-hidden">
           {/*<ul className="flex h-8">*/}
