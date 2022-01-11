@@ -95,7 +95,7 @@ export default function useFirebaseAuth() {
           fullName: fullName,
           email: email,
           avatar: signUpRef.user.photoURL,
-          role: 1,
+          role: roleRegister,
           DOB: 0,
           isDelete: false,
           phoneNumber: '',
